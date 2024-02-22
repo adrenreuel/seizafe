@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seizafe</title>
+    <meta name="author" content="Reuelthecloudwalker" />
+
+    <link rel="stylesheet" href="assets/index.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js"
+      integrity="sha512-yAr4fN9WZH6hESbOwoFZGtSgOP+LSZbs/JeoDr02pOX4yUFfI++qC9YwIQXIGffhnzliykJtdWTV/v3PxSz8aw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <!-- fonts -->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      @font-face {
+        font-family: "Technology";
+        src: url("assets/technology.ttf") format("truetype");
+      }
+      .technology {
+        font-family: "Technology", sans-serif;
+      }
+      .montserrat {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body style="background-color: gray">
+    <div align="center">
+      <div
+        style="
+          width: 250px;
+          padding: 0;
+          margin: 0;
+          margin-top: 100px;
+          height: 460px;
+          background-color: black;
+          border-width: 1;
+          border-style: double;
+          border-color: black;
+          position: relative;
+        "
+      >
+        <div class="stateindicator_container">
+          <div
+            id="animationcontainer"
+            style="
+              width: 300px;
+              /* margin-left: -35px;
+              margin-top: -100px; */
+              position: absolute;
+              z-index: 200;
+              display: none;
+              opacity: 0.5;
+            "
+          ></div>
+          <div
+            class="stateindicatoranimated"
+            id="seizafe_stateindicatoron"
+          ></div>
+          <div
+            class="stateindicatoranimated"
+            id="seizafe_stateindicatoroff"
+          ></div>
+          <div
+            style="position: absolute; z-index: 10; width: 100%; height: 100%"
+          >
+            <img
+              id="seizafe_eye_open"
+              src="assets/seizafe_eye.png"
+              style="width: 100px; padding-top: 15px; display: none"
+            />
+            <img
+              id="seizafe_eye_closed"
+              src="assets/seizafe_eye_closed.png"
+              style="width: 100px; padding-top: 15px"
+            />
+            <h1
+              class="montserrat"
+              style="line-height: 0; color: white; font-weight: 800"
+            >
+              Seizafe
+            </h1>
+            <h5
+              class="montserrat"
+              style="line-height: 0.5; color: white; font-weight: 400"
+            >
+              for Epilepsy
+            </h5>
+          </div>
+        </div>
+
+        <div class="montserrat" style="text-align: center">
+          <p
+            class="montserrat"
+            style="font-size: 12px; font-weight: 700; color: white"
+          >
+            SEIZAFE IS
+          </p>
+
+          <div class="button r" id="button-3" style="margin-top: 5px">
+            <input type="checkbox" class="checkbox" id="seizafe_state" />
+            <div class="knobs"></div>
+            <div class="layer"></div>
+          </div>
+
+          <div
+            style="
+              background-color: rgb(31, 31, 31);
+              margin-top: 20px;
+              padding-top: 2px;
+              padding-bottom: 20px;
+              position: relative;
+            "
+          >
+            <div style="position: relative">
+              <p
+                class="montserrat"
+                style="font-size: 12px; font-weight: 700; color: white"
+              >
+                SENSITIVITY
+              </p>
+              <div class="radio montserrat">
+                <input
+                  label="LOW 🤏"
+                  type="radio"
+                  id="low"
+                  name="sensitivity_radio"
+                  value="low"
+                  onclick="changeSensitivity(0)"
+                />
+                <input
+                  label="BEST ✨"
+                  type="radio"
+                  id="best"
+                  name="sensitivity_radio"
+                  value="best"
+                  checked
+                  onclick="changeSensitivity(1)"
+                />
+                <input
+                  label="HIGH ⚡️"
+                  type="radio"
+                  id="high"
+                  name="sensitivity_radio"
+                  value="high"
+                  onclick="changeSensitivity(2)"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p style="font-size: 8px; color: gray">
+              <b>WORKS ON;</b> <br />
+              YouTube | Vimeo | Dailymotion | Facebook | Instagram | TikTok |
+              Reddit | Netflix | Prime Video
+            </p>
+
+            <hr
+              class="solid"
+              style="width: 80%; border: 0; border-top: 1px solid #ccc"
+            />
+
+            <div
+              style="
+                transform: scale(0.5);
+                margin-top: -10px;
+                margin-bottom: -28px;
+              "
+            >
+              <input id="adscheckbox" type="checkbox" />
+              <label for="adscheckbox" style="color: white">
+                Display ads on alerts (Supports the developer)</label
+              >
+            </div>
+            <br />
+
+            <a style="font-size: 10px; color: rgb(183, 135, 255)" href=""
+              ><i class="fas fa-hand-holding-usd"></i> Contribute
+            </a>
+            |
+            <a style="font-size: 10px; color: rgb(183, 135, 255)" href=""
+              ><i class="fas fa-envelope"></i> Contact
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="seizafe_warning" style="margin-top: 100px">
+        <div style="position: absolute; right: 20px; margin-top: 18%">
+          <i
+            class="fas fa-exclamation-circle"
+            style="font-size: 100px; color: rgb(78, 78, 78)"
+          ></i>
+        </div>
+        <div
+          style="
+            position: absolute;
+            text-align: center;
+            z-index: 1000;
+            width: 100%;
+            cursor: pointer;
+            padding-top: 50px;
+          "
+        >
+          <img
+            src="assets/seizafe_eye.png"
+            style="width: 100px; padding-bottom: 10px"
+          />
+          <div>
+            <b class="montserrat" style="color: white; font-size: 50px"
+              >WARNING</b
+            >
+            <p class="montserrat" style="color: white">
+              THE FOLLOWING CONTENT MAY <br />POTENTIALLY TRIGGER SEIZURES
+            </p>
+
+            <p class="montserrat" style="color: white; padding-top: 20px">
+              <i class="far fa-hand-pointer"></i> Click here to dismiss
+            </p>
+          </div>
+        </div>
+        <video
+          id="player"
+          src="https://upload.wikimedia.org/wikipedia/commons/transcoded/1/18/Big_Buck_Bunny_Trailer_1080p.ogv/Big_Buck_Bunny_Trailer_1080p.ogv.360p.vp9.webm"
+          loop
+          muted
+          controls
+        ></video>
+
+        <div
+          style="
+            background: rgb(0, 0, 0);
+            background: linear-gradient(
+              180deg,
+              rgba(0, 0, 0, 1) 0%,
+              rgba(41, 41, 41, 1) 97%,
+              rgba(0, 0, 0, 1) 100%
+            );
+            width: 100px;
+            position: absolute;
+            right: 0px;
+            height: 25px;
+            bottom: -30px;
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            padding-top: 5px;
+            padding-bottom: 3px;
+          "
+        >
+          <img
+            src="assets/seizafe_eye.png"
+            style="width: 20px; margin-bottom: -2px"
+          />
+          <b style="color: white; font-size: 10px" class="montserrat"
+            >Active
+          </b>
+        </div>
+      </div>
+
+      <br />
+
+      <div class="seizafe_warning" style="margin: 50px">
+        <div style="position: absolute; right: 20px; margin-top: 40%">
+          <i
+            class="fas fa-exclamation-circle"
+            style="font-size: 100px; color: rgb(78, 78, 78)"
+          ></i>
+        </div>
+        <div
+          style="
+            position: absolute;
+            text-align: center;
+            z-index: 1000;
+            width: 100%;
+            cursor: pointer;
+            padding-top: 40%;
+          "
+        >
+          <img
+            src="assets/seizafe_eye.png"
+            style="width: 100px; padding-bottom: 10px"
+          />
+          <div>
+            <b class="montserrat" style="color: white; font-size: 30px"
+              >WARNING</b
+            >
+            <p class="montserrat" style="color: white; font-size: 12px">
+              THE FOLLOWING CONTENT MAY POTENTIALLY TRIGGER SEIZURES
+            </p>
+
+            <p class="montserrat" style="color: white; padding-top: 20px">
+              <i class="far fa-hand-pointer"></i> Click here to dismiss
+            </p>
+          </div>
+        </div>
+        <video
+          id="player"
+          src="https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4"
+          height="500"
+          loop
+          muted
+          controls
+        ></video>
+      </div>
+
+      <div class="seizafe_border" style="margin: 50px">
+        <video
+          id="player"
+          src="https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4"
+          height="500"
+          loop
+          muted
+          controls
+        ></video>
+      </div>
+    </div>
+
+    <script>
+      var animation = bodymovin.loadAnimation({
+        // animationData: { /* ... */ },
+        container: document.getElementById("animationcontainer"), // required
+        path: "assets/starsanimation.json", // required
+        renderer: "svg", // required
+        loop: true, // optional
+        autoplay: true, // optional
+        name: "Demo Animation", // optional
+      });
+
+      animation.setSpeed(2.5);
+
+      const stateCheckbox = document.getElementById("seizafe_state");
+      const stateIndicatoron = document.getElementById(
+        "seizafe_stateindicatoron"
+      );
+      const stateIndicatoroff = document.getElementById(
+        "seizafe_stateindicatoroff"
+      );
+      const seizafe_eye_closed = document.getElementById("seizafe_eye_closed");
+      const seizafe_eye_open = document.getElementById("seizafe_eye_open");
+      const animationcontainer = document.getElementById("animationcontainer");
+
+      stateCheckbox.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          stateIndicatoron.style.opacity = 1;
+          stateIndicatoroff.style.opacity = 0;
+          seizafe_eye_open.style.display = "inline";
+          seizafe_eye_closed.style.display = "none";
+          animationcontainer.style.display = "block";
+        } else {
+          stateIndicatoron.style.opacity = 0;
+          stateIndicatoroff.style.opacity = 1;
+          seizafe_eye_open.style.display = "none";
+          seizafe_eye_closed.style.display = "inline";
+          animationcontainer.style.display = "none";
+        }
+      });
+
+      function changeSensitivity(x) {
+        if (x == 0) {
+          animation.setSpeed(1);
+        } else if (x == 1) {
+          animation.setSpeed(2.5);
+        } else if (x == 2) {
+          animation.setSpeed(5);
+        }
+      }
+    </script>
+  </body>
+</html>
