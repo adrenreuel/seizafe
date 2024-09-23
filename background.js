@@ -39,3 +39,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     }
   );
 });
+
+document.getElementById("primaryColor").addEventListener("input", function () {
+  alert(this.value);
+});

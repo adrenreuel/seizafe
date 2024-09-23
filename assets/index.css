@@ -124,7 +124,12 @@
   #button-3 .checkbox:checked + .knobs:before {
     content: "ON";
     left: 62px;
-    background-color: #6600ff;
+    /* background-color: #6600ff; */
+    background-image: radial-gradient(
+      circle at 0% 50%,
+      #6600ff 0%,
+      #d300ff 100%
+    );
     border-width: 1;
     border-style: solid;
     border-color: #5403cd;
