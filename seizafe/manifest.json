@@ -13,7 +13,7 @@
         "run_at": "document_end"
       }
     ],
-    "options_page": "options.html",
+    "options_page": "options/index.html",
     "permissions": ["storage", "activeTab", "scripting", "tabs"],
     "action": {
       "default_popup": "popup.html",
