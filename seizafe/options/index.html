@@ -6,6 +6,10 @@
       rel="icon"
       href="../assets/images/32.png"
     />
+    <link
+      rel="stylesheet"
+      href="../assets/options.css"
+    />
     <meta
       http-equiv="X-UA-Compatible"
       content="IE=edge"
@@ -13,6 +17,10 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+      name="description"
+      content="Seizafe for Epilepsy"
     />
     <title>Options - Seizafe for Epilepsy</title>
     <link
@@ -481,14 +489,10 @@
             &#x1F39B; Custom sensitivity
           </h5>
 
-          <button class="btn btn-outline-light btn-sm m-2">
-            <i class="fas fa-redo"></i> Reset to defaults</button
-          ><br />
-
           <label
             for="redRange"
             class="form-label"
-            ><span class="badge bg-secondary">50 %</span> Red intensity
+            >Red levels <span class="badge bg-secondary">50 %</span>
           </label>
           <input
             type="range"
@@ -499,8 +503,8 @@
           <label
             for="greenRange"
             class="form-label"
-            ><span class="badge bg-secondary">50 %</span> Green intensity</label
-          >
+            >Green levels <span class="badge bg-secondary">50 %</span>
+          </label>
           <input
             type="range"
             class="form-range"
@@ -510,7 +514,7 @@
           <label
             for="blueRange"
             class="form-label"
-            ><span class="badge bg-secondary">50 %</span> Blue intensity</label
+            >Blue levels <span class="badge bg-secondary">50 %</span></label
           >
           <input
             type="range"
@@ -521,8 +525,9 @@
           <label
             for="lightUpper"
             class="form-label"
-            ><span class="badge bg-secondary">50 %</span> Luminance upper
-            bound</label
+          >
+            White levels
+            <span class="badge bg-secondary">50 %</span></label
           >
           <input
             type="range"
@@ -533,8 +538,9 @@
           <label
             for="lightLower"
             class="form-label"
-            ><span class="badge bg-secondary">50 %</span> Luminance lower
-            bound</label
+          >
+            Black levels
+            <span class="badge bg-secondary">50 %</span></label
           >
           <input
             type="range"
@@ -543,16 +549,21 @@
           />
 
           <label
-            for="timeDelay"
+            for="frequency"
             class="form-label"
-            ><span class="badge bg-secondary">10s</span> Interval between
-            warnings (seconds)</label
-          >
+            >Flash frequency <span class="badge bg-secondary">10 Hz</span>
+          </label>
           <input
             type="range"
             class="form-range"
-            id="timeDelay"
+            id="frequency"
           />
+
+          <div class="mt-2">
+            <button class="btn btn-outline-light btn-sm">
+              <i class="fas fa-redo"></i> Reset to defaults
+            </button>
+          </div>
         </div>
 
         <div
@@ -571,10 +582,6 @@
           >
             &#x1F3A8; Custom warning overlay color
           </h5>
-
-          <button class="btn btn-outline-light btn-sm m-2">
-            <i class="fas fa-redo"></i> Reset to defaults</button
-          ><br />
 
           <div class="row justify-content-center">
             <div class="col">
@@ -645,6 +652,12 @@
                 />
               </div>
             </div>
+          </div>
+
+          <div class="mt-4">
+            <button class="btn btn-outline-light btn-sm">
+              <i class="fas fa-redo"></i> Reset to defaults
+            </button>
           </div>
         </div>
 

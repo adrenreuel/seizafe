@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="assets/index.css" />
+    <link
+      rel="stylesheet"
+      href="assets/index.css"
+    />
     <script src="assets/lottie.min.js"></script>
 
     <!-- fonts -->
@@ -11,8 +14,15 @@
       integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
       crossorigin="anonymous"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700;800;900&display=swap"
       rel="stylesheet"
@@ -72,7 +82,10 @@
         position: relative;
       "
     >
-      <div class="stateindicator_container" id="stateindicator_container">
+      <div
+        class="stateindicator_container"
+        id="stateindicator_container"
+      >
         <div
           id="animationcontainer"
           style="
@@ -83,7 +96,10 @@
             opacity: 0.5;
           "
         ></div>
-        <div class="stateindicatoranimated" id="seizafe_stateindicatoron"></div>
+        <div
+          class="stateindicatoranimated"
+          id="seizafe_stateindicatoron"
+        ></div>
         <div
           class="stateindicatoranimated"
           id="seizafe_stateindicatoroff"
@@ -132,11 +148,15 @@
           ></i></div
       ></a> -->
 
-      <div id="metaBanner" style="display: none">
+      <div
+        id="metaBanner"
+        style="display: none"
+      >
         <div
           style="
             background-color: #120015;
             border: 2px solid #3e004a;
+            box-shadow: 0 0 20px #480256;
             padding-inline: 30px;
             padding-block: 5px;
             margin-inline: 15px;
@@ -148,8 +168,24 @@
         >
           <p
             class="montserrat"
-            style="font-size: 8px; font-weight: 700; color: white"
+            style="
+              font-size: 8px;
+              font-weight: 700;
+              color: rgba(255, 255, 255, 0.765);
+              text-align: center;
+            "
           >
+            <b
+              style="
+                font-size: 10px;
+                font-weight: 900;
+                transform: rotate(-45deg);
+                display: inline-block;
+                margin-right: 5px;
+                color: #eb87ff;
+              "
+              >Zzz</b
+            >
             Nothing is playing right now...
           </p>
         </div>
@@ -210,16 +246,27 @@
         </div>
       </div>
 
-      <div class="montserrat" style="text-align: center">
+      <div
+        class="montserrat"
+        style="text-align: center"
+      >
         <p
           class="montserrat"
-          style="font-size: 12px; font-weight: 400; color: rgb(219, 219, 219)"
+          style="font-size: 12px; font-weight: 800; color: rgb(219, 219, 219)"
         >
           SEIZAFE IS
         </p>
 
-        <div class="button r" id="button-3" style="margin-top: 5px">
-          <input type="checkbox" class="checkbox" id="seizafe_state" />
+        <div
+          class="button r"
+          id="button-3"
+          style="margin-top: 5px"
+        >
+          <input
+            type="checkbox"
+            class="checkbox"
+            id="seizafe_state"
+          />
           <div class="knobs"></div>
           <div class="layer"></div>
         </div>
@@ -247,11 +294,16 @@
         > -->
         <div
           style="
-            background-color: #171717;
-            opacity: 1;
-            background-size: 20px 20px;
-            margin-top: 20px;
-            padding-top: 2px;
+            /* background-color: #171717; */
+            background: rgb(0, 0, 0);
+            background: linear-gradient(
+              0deg,
+              rgba(0, 0, 0, 1) 0%,
+              rgb(34, 34, 34) 50%,
+              rgba(0, 0, 0, 1) 100%
+            );
+            margin-top: -20px;
+            padding-top: 30px;
             padding-bottom: 20px;
             position: relative;
           "
@@ -292,6 +344,17 @@
               />
             </div>
           </div>
+          <br />
+          <a
+            id="optionslink"
+            style="
+              font-size: 10px;
+              color: rgb(255, 255, 255);
+              text-decoration: none;
+            "
+            href="#"
+            ><i class="fas fa-cog"></i> More Options
+          </a>
         </div>
 
         <div style="padding-top: 10px; padding-bottom: 20px">
@@ -299,13 +362,7 @@
             <b>ENABLED ON;</b> <br />
             YouTube | Vimeo | Dailymotion | Facebook | Instagram | TikTok |
             Netflix | Prime Video | Disney+ | HBO
-            <br /><br />
-            <a
-              id="optionslink"
-              style="font-size: 10px; color: rgb(255, 255, 255)"
-              href="#"
-              ><i class="fas fa-cog"></i> Options
-            </a>
+            <br />
           </p>
           <!-- <p style="font-size: 8px; color: gray"><b>WORKS ON;</b></p>
           <div class="scrollmenu">
@@ -341,12 +398,24 @@
           </div> -->
 
           <div style="margin-top: 10px">
-            <a style="font-size: 10px; color: rgb(255, 82, 241)" href=""
+            <a
+              style="
+                font-size: 10px;
+                color: rgb(255, 82, 241);
+                text-decoration: none;
+              "
+              href=""
               ><i class="fas fa-hand-holding-usd"></i> Support
             </a>
             |
-            <a style="font-size: 10px; color: rgb(255, 82, 241)" href=""
-              ><i class="fas fa-envelope"></i> Contact
+            <a
+              style="
+                font-size: 10px;
+                color: rgb(255, 82, 241);
+                text-decoration: none;
+              "
+              href=""
+              ><i class="fab fa-instagram"></i> Contact
             </a>
           </div>
         </div>
