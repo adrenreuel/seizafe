@@ -47,7 +47,7 @@ function truncate(str, n) {
 // Seizafe animated stars
 var animation = bodymovin.loadAnimation({
   container: document.getElementById("animationcontainer"),
-  path: "assets/starsanimation.json",
+  path: "../assets/starsanimation.json",
   renderer: "svg",
   loop: true,
   autoplay: true,
@@ -135,21 +135,21 @@ function toggleNowPlaying(state, platformurl, url, title, channel) {
 
 // Listen for sensitivity setting changes
 lowsensitivity.addEventListener("click", (event) => {
-  seizafe_eye_open.src = "assets/seizafe_eye_low.png";
+  seizafe_eye_open.src = "../assets/seizafe_eye_low.png";
   chrome.storage.sync.set({ seizafesensitivity: 1 }, function () {
     animation.setSpeed(1);
   });
 });
 
 bestsensitivity.addEventListener("click", (event) => {
-  seizafe_eye_open.src = "assets/seizafe_eye.png";
+  seizafe_eye_open.src = "../assets/seizafe_eye.png";
   chrome.storage.sync.set({ seizafesensitivity: 2.5 }, function () {
     animation.setSpeed(2.5);
   });
 });
 
 highsensitivity.addEventListener("click", (event) => {
-  seizafe_eye_open.src = "assets/seizafe_eye_high.png";
+  seizafe_eye_open.src = "../assets/seizafe_eye_high.png";
   chrome.storage.sync.set({ seizafesensitivity: 5 }, function () {
     animation.setSpeed(5);
   });

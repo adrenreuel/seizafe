@@ -13,10 +13,10 @@
         "run_at": "document_end"
       }
     ],
-    "options_page": "options/index.html",
+    "options_page": "options/options.html",
     "permissions": ["storage", "activeTab", "scripting", "tabs"],
     "action": {
-      "default_popup": "popup.html",
+      "default_popup": "popup/popup.html",
       "default_icon": {
         "16": "assets/images/16.png",
         "32": "assets/images/32.png",
