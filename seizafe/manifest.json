@@ -1,5 +1,5 @@
 {
-    "name": "Seizafe for Epilepsy",
+    "name": "Seizafe - Epilepsy Alert for YouTube™",
     "description": "Prevent Photosensitive-Epileptic seizures while watching YouTube™ videos. We'll warn you before you see any flashy videos.",
     "version": "1.0",
     "manifest_version": 3,
@@ -8,9 +8,9 @@
       },
     "content_scripts": [
       {
-        "matches": ["https://*.youtube.com/*"],
+        "matches": ["https://www.youtube.com/*"],
         "js": ["content-script.js"],
-        "run_at": "document_end"
+        "run_at": "document_idle"
       }
     ],
     "options_page": "options/options.html",

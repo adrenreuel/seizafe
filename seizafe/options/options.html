@@ -452,7 +452,12 @@
           <label
             for="redRange"
             class="form-label"
-            >Red levels <span class="badge bg-light text-dark">50 %</span>
+            >Red levels
+            <span
+              id="redLevels"
+              class="badge bg-light text-dark"
+              >0</span
+            >
           </label>
           <input
             type="range"
@@ -463,7 +468,12 @@
           <label
             for="greenRange"
             class="form-label"
-            >Green levels <span class="badge bg-light text-dark">50 %</span>
+            >Green levels
+            <span
+              id="greenLevels"
+              class="badge bg-light text-dark"
+              >0</span
+            >
           </label>
           <input
             type="range"
@@ -475,7 +485,11 @@
             for="blueRange"
             class="form-label"
             >Blue levels
-            <span class="badge bg-light text-dark">50 %</span></label
+            <span
+              id="blueLevels"
+              class="badge bg-light text-dark"
+              >0</span
+            ></label
           >
           <input
             type="range"
@@ -484,53 +498,68 @@
           />
 
           <label
-            for="lightUpper"
+            for="whiteRange"
             class="form-label"
           >
             White levels
-            <span class="badge bg-light text-dark">50 %</span></label
+            <span
+              id="whiteLevels"
+              class="badge bg-light text-dark"
+              >0</span
+            ></label
           >
           <input
             type="range"
             class="form-range"
-            id="lightUpper"
+            id="whiteRange"
           />
 
           <label
-            for="lightLower"
+            for="blackRange"
             class="form-label"
           >
             Black levels
-            <span class="badge bg-light text-dark">50 %</span></label
+            <span
+              id="blackLevels"
+              class="badge bg-light text-dark"
+              >0</span
+            ></label
           >
           <input
             type="range"
             class="form-range"
-            id="lightLower"
+            id="blackRange"
           />
 
           <label
-            for="frequency"
+            for="flashFrequencyRange"
             class="form-label"
             >Flash frequency
-            <span class="badge bg-light text-dark">≥ 10 Hz</span>
+            <span
+              id="flashFrequency"
+              class="badge bg-light text-dark"
+              >≥ 0 Hz</span
+            >
           </label>
           <input
             type="range"
             class="form-range"
-            id="frequency"
+            id="flashFrequencyRange"
           />
-
           <label
-            for="movingaverage"
+            for="movingAverageRange"
             class="form-label"
             >Moving average period
-            <span class="badge bg-light text-dark">1 s</span>
+            <span
+              id="movingAverage"
+              class="badge bg-light text-dark"
+              >0 s</span
+            >
           </label>
           <input
             type="range"
             class="form-range"
-            id="movingaverage"
+            id="movingAverageRange"
           />
 
           <div class="mt-2">
@@ -562,8 +591,8 @@
               <label
                 for="primaryColor"
                 class="form-label"
-                >Primary color: <span id="primary_color">#6600ff</span></label
-              >
+                >Primary color: <span id="primary_color"></span
+              ></label>
               <input
                 type="color"
                 class="form-control form-control-color"
@@ -571,47 +600,31 @@
                 value="#563d7c"
                 title="Choose your color"
               />
-              <script>
-                function changePrimaryColor(color) {
-                  document.getElementById("primary_color").innerHTML = color;
-                }
-              </script>
               <br />
               <label
                 for="secondaryColor"
                 class="form-label"
-                >Secondary color:
-                <span id="secondary_color">#6600ff</span></label
-              >
+                >Secondary color: <span id="secondary_color"></span
+              ></label>
               <input
                 type="color"
                 class="form-control form-control-color"
                 id="secondaryColor"
-                value="#563d7c"
+                value="#340081"
                 title="Choose your color"
-                onchange="changeSecondaryColor(this.value)"
               />
             </div>
-            <script>
-              function changeSecondaryColor(color) {
-                document.getElementById("secondary_color").innerHTML = color;
-              }
-            </script>
             <div class="col">
               <div style="background-color: black; border-radius: 10px">
                 <div
+                  id="customWarningOverlay"
                   style="
                     width: 100%;
                     height: 150px;
-                    background: rgb(42, 0, 104);
-                    background: linear-gradient(
-                      360deg,
-                      rgba(27, 2, 65, 0.463) 33%,
-                      rgba(52, 0, 129, 0.912) 100%
-                    );
                     border-radius: 10px;
                     text-align: center;
                     padding-top: 65px;
+                    background: rgb(42, 0, 104);
                   "
                 >
                   <img
@@ -748,10 +761,6 @@
         </div>
       </div>
     </div>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
-      crossorigin="anonymous"
-    ></script>
+    <script src="options.js"></script>
   </body>
 </html>

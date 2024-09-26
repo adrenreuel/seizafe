@@ -31,7 +31,9 @@ const currentlyPlayingBanner = document.getElementById(
 const nothingPlayingBanner = document.getElementById("nothingPlayingBanner");
 const metaBanner = document.getElementById("metaBanner");
 const videoPlayingURL = document.getElementById("videoPlayingURL");
+const videoPlayingChannel = document.getElementById("videoPlayingChannel");
 const videoPlayingTitle = document.getElementById("videoPlayingTitle");
+const videoPlayingThumbnail = document.getElementById("videoPlayingThumbnail");
 
 // Sensitivity & other settings
 const lowsensitivity = document.getElementById("lowsensitivity");
@@ -105,7 +107,7 @@ function toggleSeizafe(state) {
   });
 }
 
-function toggleNowPlaying(state, platformurl, url, title, channel) {
+function toggleNowPlaying(state, platformurl, url, title, channel, thumbnail) {
   // chrome.storage.sync.set({ nowplaying: state }, function () {
   if (state) {
     currentlyPlayingBanner.style.display = "block";
@@ -113,17 +115,19 @@ function toggleNowPlaying(state, platformurl, url, title, channel) {
     videoPlayingURL.innerHTML = platformurl;
     videoPlayingURL.href = url;
     if (channel) {
-      videoPlayingURL.innerHTML += " | " + truncate(channel, 35);
+      videoPlayingChannel.innerHTML = truncate(channel, 35);
     } else {
-      videoPlayingURL.innerHTML += "";
+      videoPlayingChannel.innerHTML += "";
     }
     videoPlayingTitle.innerHTML = truncate(title, 60);
+    videoPlayingThumbnail.style.backgroundImage = "url(" + thumbnail + ")";
   } else {
     currentlyPlayingBanner.style.display = "none";
     nothingPlayingBanner.style.display = "block";
     videoPlayingTitle.innerHTML = "";
     videoPlayingURL.innerHTML = "";
     videoPlayingURL.href = "";
+    videoPlayingThumbnail.style.backgroundImage = "";
   }
   // });
 }
@@ -163,11 +167,6 @@ videoPlayingURL.addEventListener("click", (event) => {
   chrome.tabs.create({ active: true, url: videoPlayingURL.href });
 });
 
-// Listen for advertisement checkbox state
-// adscheckbox.addEventListener("click", (event) => {
-//   chrome.storage.sync.set({ seizafeads: adscheckbox.checked }, function () {});
-// });
-
 // Get seizafe synced settings
 chrome.storage.sync.get(["seizafestate"], function (result) {
   if (result.seizafestate) {
@@ -189,12 +188,8 @@ chrome.storage.sync.get(["seizafesensitivity"], function (result) {
   }
 });
 
-// chrome.storage.sync.get(["seizafeads"], function (result) {
-//   adscheckbox.checked = result.seizafeads;
-// });
-
 chrome.storage.local.get(
-  ["platformURL", "videoURL", "videoTitle", "channelName"],
+  ["platformURL", "videoURL", "videoTitle", "channelName", "thumbnail"],
   function (data) {
     if (typeof data.videoTitle == "undefined") {
       toggleNowPlaying(false, null);
@@ -204,7 +199,8 @@ chrome.storage.local.get(
         data.platformURL,
         data.videoURL,
         data.videoTitle,
-        data.channelName
+        data.channelName,
+        data.thumbnail
       );
     }
   }

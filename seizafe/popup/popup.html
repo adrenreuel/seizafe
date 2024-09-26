@@ -185,7 +185,7 @@
           style="
             background-color: #3a0046;
             border: 1px solid #9600b4;
-            padding-inline: 30px;
+            padding-inline: 10px;
             padding-block: 5px;
             margin-inline: 15px;
             margin-top: 15px;
@@ -197,14 +197,25 @@
         >
           <table style="width: 100%">
             <tr>
-              <td style="text-align: left; width: 20%">
-                <i
+              <td style="text-align: left">
+                <!-- <i
                   class="fas fa-play-circle"
                   style="color: white; font-size: 20px"
-                ></i>
+                ></i> -->
+                <div
+                  id="videoPlayingThumbnail"
+                  style="
+                    width: 70px;
+                    height: 50px;
+                    background-color: #000000;
+                    border-radius: 5px;
+                    background-size: cover;
+                    background-position: center;
+                  "
+                ></div>
               </td>
-              <td style="text-align: left; width: 80%">
-                <a
+              <td style="text-align: left; width: 80%; padding-left: 10px">
+                <p
                   id="videoPlayingURL"
                   class="montserrat"
                   style="
@@ -216,7 +227,21 @@
                   "
                 >
                   url
-                </a>
+                </p>
+                <p
+                  id="videoPlayingChannel"
+                  class="montserrat"
+                  style="
+                    font-size: 6px;
+                    color: rgb(255, 82, 241);
+                    text-decoration: none;
+                    margin: 0;
+                    padding: 0;
+                    font-weight: 800;
+                  "
+                >
+                  channel
+                </p>
                 <p
                   id="videoPlayingTitle"
                   class="montserrat"

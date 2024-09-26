@@ -1,13 +1,11 @@
 let seizafestate = true;
 let seizafesensitivity = 2.5;
-let seizafeads = false;
 // let nowplaying = false;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
   chrome.storage.sync.set({ seizafesensitivity });
-  chrome.storage.sync.set({ seizafeads });
-  // chrome.storage.sync.set({ nowplaying });
+  chrome.storage.sync.set({ nowplaying });
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
@@ -38,8 +36,4 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
       });
     }
   );
-});
-
-document.getElementById("primaryColor").addEventListener("input", function () {
-  alert(this.value);
 });

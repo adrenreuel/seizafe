@@ -1,24 +1,23 @@
-// windowURL = window.location.toString();
-var windowURL = "";
+var windowURL = window.location.toString();
 seizafe();
 
 // listen for messages sent from background.js
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
     windowURL = request.url;
+    // alert("URL Changed " + windowURL);
     seizafe();
-    console.log("urlchanged");
   }
 
-  if (request.message === "tabchanged") {
-    // alert("tabchanged");
-  }
+  // if (request.message === "tabchanged") {
+  //   alert("tabchanged");
+  // }
 
-  if (request.message === "seizafeon") {
-    seizafe();
-  } else if (request.message === "seizafeoff") {
-    seizafe();
-  }
+  // if (request.message === "seizafeon") {
+  //   seizafe();
+  // } else if (request.message === "seizafeoff") {
+  //   seizafe();
+  // }
 });
 
 // function observeTitle() {
@@ -37,14 +36,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function seizafe() {
   //YOUTUBE
-  if (windowURL.includes("youtube.com") && !windowURL.includes("/shorts/")) {
+  if (windowURL.includes("youtube.com/watch")) {
+    // alert("Youtube: " + windowURL);
+    var videoID = windowURL.split("v=")[1];
+    var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
+
     var videoTitle = document.querySelector("h1.ytd-watch-metadata");
     var channelName = document.querySelector("#channel-name");
 
-    // alert(windowURL);
-
     chrome.storage.local.set({ platformURL: "youtube.com" });
     chrome.storage.local.set({ videoURL: windowURL });
+    chrome.storage.local.set({ thumbnail: videoThumbnail });
 
     if (videoTitle) {
       chrome.storage.local.set({ videoTitle: videoTitle.innerText });
@@ -54,35 +56,31 @@ function seizafe() {
     }
 
     var video = document.querySelector("video");
-    var player = document.querySelector("#player");
-
     var videoparent = video.parentNode;
     var videoparentparent = videoparent.parentNode;
 
     chrome.storage.sync.get(["seizafestate"], function (result) {
       if (result.seizafestate) {
-        videoparentparent.style.border = "thin dotted #6600ff";
+        video.style.border = "5px solid #6600ff";
       } else {
-        videoparentparent.style.border = "none";
+        video.style.border = "none";
       }
     });
 
-    //   alert(videoparentparent.id);
+    // alert(videoparentparent.id);
     // Youtube previewvideo container
-    // var previewvideo = document.getElementById("inline-preview-player");
+    var previewvideo = document.getElementById("inline-preview-player");
     // Youtube movie container
-    // var movievideo = document.getElementById("movie_player");
+    var movievideo = document.getElementById("movie_player");
     // Youtube shorts container
-    // var shortsvideo = document.getElementById("shorts-player");
+    var shortsvideo = document.getElementById("shorts-player");
   }
 
   //YOUTUBE SHORTS
-  else if (
-    windowURL.includes("youtube.com") &&
-    windowURL.includes("/shorts/")
-  ) {
+  else if (windowURL.includes("youtube.com/shorts")) {
     // var video = document.querySelector("video");
-    // alert("Youtube Shorts");
+    // alert("Youtube Shorts: " + windowURL);
+
     var shortPlayingContainer = document.querySelector(
       "ytd-reel-video-renderer[is-active]"
     );
@@ -94,9 +92,9 @@ function seizafe() {
     chrome.storage.local.set({ platformURL: "youtube.com/shorts" });
     chrome.storage.local.set({ videoURL: windowURL });
 
-    if (videoTitle) {
-      chrome.storage.local.set({ videoTitle: videoTitle.innerText });
-    }
+    // document.title on change set videoTitle
+    chrome.storage.local.set({ videoTitle: document.title });
+
     if (channelName) {
       chrome.storage.local.set({ channelName: channelName.innerText });
     }
