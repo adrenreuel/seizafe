@@ -190,12 +190,8 @@ chrome.storage.sync.get(["seizafesensitivity"], function (result) {
 });
 
 chrome.storage.sync.get(["activesites"], function (result) {
-  if (result.activesites.length > 0) {
-    result.activesites.forEach((site) => {
-      let li = document.createElement("li");
-      li.innerHTML = site;
-      activeSitesList.appendChild(li);
-    });
+  if (result.activesites && result.activesites.length > 0) {
+    activeSitesList.innerHTML = result.activesites.join(" | ");
   } else {
     activeSitesList.innerHTML =
       "<i class='fas fa-exclamation-circle'></i> No active sites";

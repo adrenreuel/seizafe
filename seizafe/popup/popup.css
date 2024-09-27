@@ -23,6 +23,27 @@
     display: flex;
   }
 
+  #optionslink {
+    text-decoration: none;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+  }
+
+  #optionslink:hover {
+    text-decoration: underline;
+  }
+
+  .footerlink{
+    font-size: 10px;
+    color: rgb(255, 82, 241);
+    text-decoration: none;
+  } 
+
+  .footerlink:hover {
+    text-decoration: underline;
+  }
+
   .stateindicator_container {
     position: relative;
     height: 142px;

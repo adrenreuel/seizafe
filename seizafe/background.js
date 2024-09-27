@@ -1,12 +1,28 @@
 let seizafestate = true;
 let seizafesensitivity = 2.5;
 let activesites = ["YouTube", "YouTube Shorts"];
+let sensitivity = {
+  redLevels: 0,
+  greenLevels: 0,
+  blueLevels: 0,
+  whiteLevels: 0,
+  blackLevels: 0,
+  flashFrequency: 0,
+  movingAverage: 0,
+};
+let miscSettings = [];
+let customWarning = {
+  primaryColor: "#6600ff",
+  secondaryColor: "#bb00ff",
+};
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
   chrome.storage.sync.set({ seizafesensitivity });
   chrome.storage.sync.set({ nowplaying });
   chrome.storage.sync.set({ activesites });
+  chrome.storage.sync.set({ customWarning });
+  chrome.storage.sync.set({ miscSettings });
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {

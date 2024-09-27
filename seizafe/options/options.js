@@ -1,23 +1,62 @@
+// shareBtn
+document.getElementById("shareBtn").addEventListener("click", function () {
+  // Copy to clipboard
+  var copyLink =
+    "https://chromewebstore.google.com/detail/seizafe-epilepsy-alert-fo/goageegpmdbgenkgkhfhnnjmgmgboegi";
+  navigator.clipboard.writeText(copyLink);
+
+  var snackbar = document.getElementById("snackbar");
+  snackbar.className = "show";
+  setTimeout(function () {
+    snackbar.className = snackbar.className.replace("show", "");
+  }, 3000);
+});
+
 // ACTIVE SITES
 document.getElementById("youtube").addEventListener("change", function () {
-  updateActiveSite("YouTube", this.value);
+  updateActiveSites("YouTube", this.checked);
 });
 
 document
   .getElementById("youtubeshorts")
   .addEventListener("change", function () {
-    updateActiveSite("YouTube Shorts", this.value);
+    updateActiveSites("YouTube Shorts", this.checked);
   });
 
-function updateActiveSite(site, value) {
+function updateActiveSites(site, value) {
   chrome.storage.sync.get(["activesites"], function (result) {
-    let activesites = result.activesites || [];
-    if (value == true) {
+    let activesites = result.activesites;
+
+    if (!activesites) {
+      activesites = [];
+    } else {
+      activesites = result.activesites.toString().split(",");
+    }
+
+    if (value) {
       activesites.push(site);
     } else {
       activesites = activesites.filter((activeSite) => activeSite !== site);
+      if (activesites.length == 0) {
+        activesites = null;
+      }
     }
+
     chrome.storage.sync.set({ activesites });
+  });
+}
+
+function updateActiveSiteOptions() {
+  chrome.storage.sync.get(["activesites"], function (result) {
+    if (result.activesites) {
+      result.activesites = result.activesites.toString().split(",");
+      for (let site of result.activesites) {
+        if (site != "") {
+          site = site.replace(/\s/g, "");
+          document.getElementById(site.toLowerCase()).checked = true;
+        }
+      }
+    }
   });
 }
 
@@ -71,14 +110,32 @@ function updateWarningOverlay() {
   var secondaryColor = document.getElementById("secondaryColor").value;
   document.getElementById("primary_color").innerHTML = primaryColor;
   document.getElementById("secondary_color").innerHTML = secondaryColor;
-  var customWarningOverlay = document.getElementById("customWarningOverlay");
 
+  chrome.storage.sync.set({
+    customWarning: {
+      primaryColor,
+      secondaryColor,
+    },
+  });
   // Apply selected colors with fixed opacities
+  var customWarningOverlay = document.getElementById("customWarningOverlay");
   customWarningOverlay.style.background = `linear-gradient(
       0deg, 
       ${hexToRgba(primaryColor, 0.8)} 33%,
       ${hexToRgba(secondaryColor, 0.2)} 100%
     )`;
+}
+
+function updateWarnignOverlayOptions() {
+  chrome.storage.sync.get(["customWarning"], function (result) {
+    if (result.customWarning) {
+      document.getElementById("primaryColor").value =
+        result.customWarning.primaryColor;
+      document.getElementById("secondaryColor").value =
+        result.customWarning.secondaryColor;
+      updateWarningOverlay();
+    }
+  });
 }
 
 // Helper function to convert hex color to rgba with specified opacity
@@ -90,7 +147,69 @@ function hexToRgba(hex, opacity) {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
+document
+  .getElementById("resetCustomWarning")
+  .addEventListener("click", resetCustomWarning);
+
+function resetCustomWarning() {
+  document.getElementById("primaryColor").value = "#6600ff";
+  document.getElementById("secondaryColor").value = "#bb00ff";
+  updateWarningOverlay();
+}
+
+// MISC SETTINGS
+document
+  .getElementById("auditoryfeedback")
+  .addEventListener("change", function () {
+    updateActiveSites("Auditory Feedback", this.checked);
+  });
+
+document.getElementById("warnonce").addEventListener("change", function () {
+  updateActiveSites("Warn Once", this.checked);
+});
+
+function updateMiscSettings(setting, value) {
+  chrome.storage.sync.get(["miscSettings"], function (result) {
+    let miscSettings = result.miscSettings;
+
+    if (!miscSettings) {
+      miscSettings = [];
+    } else {
+      miscSettings = result.miscSettings.toString().split(",");
+    }
+
+    if (value) {
+      miscSettings.push(setting);
+    } else {
+      miscSettings = miscSettings.filter(
+        (miscSetting) => miscSetting !== setting
+      );
+      if (miscSettings.length == 0) {
+        miscSettings = null;
+      }
+    }
+
+    chrome.storage.sync.set({ miscSettings });
+  });
+}
+
+function updateMiscSettingsOptions() {
+  chrome.storage.sync.get(["miscSettings"], function (result) {
+    if (result.miscSettings) {
+      result.miscSettings = result.miscSettings.toString().split(",");
+      for (let setting of result.miscSettings) {
+        if (setting != "") {
+          setting = setting.replace(/\s/g, "");
+          document.getElementById(setting.toLowerCase()).checked = true;
+        }
+      }
+    }
+  });
+}
+
 window.onload = function () {
   updateSensitivities();
-  updateWarningOverlay();
+  updateActiveSiteOptions();
+  updateWarnignOverlayOptions();
+  updateMiscSettingsOptions();
 };
