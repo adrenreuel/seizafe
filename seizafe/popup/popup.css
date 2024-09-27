@@ -11,6 +11,18 @@
     text-align: left;
   }
 
+  #currentlyPlayingBanner{
+    background-color: #3a0046;
+    border: 1px solid #9600b4;
+    padding-inline: 10px;
+    padding-block: 5px;
+    margin-inline: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+    text-align: left;
+    display: flex;
+  }
+
   .stateindicator_container {
     position: relative;
     height: 142px;
@@ -75,6 +87,7 @@
   .button.r,
   .button.r .layer {
     border-radius: 100px;
+    /* outline: 1px solid #d300ff; */
   }
   
   .button.b2 {
@@ -138,14 +151,16 @@
     content: "ON";
     left: 62px;
     /* background-color: #6600ff; */
+    color: #ffffff;
     background-image: radial-gradient(
-      circle at 0% 50%,
-      #6600ff 0%,
-      #d300ff 100%
+      circle at 0% 10%,
+      #6a00ff 0%,
+      #b52aff 100%
     );
     border-width: 1;
     border-style: solid;
     border-color: #5403cd;
+    /* box-shadow: 0 0 0 20px #b93cdf; */
   }
   
   #button-3 .checkbox:checked ~ .layer {
@@ -183,8 +198,16 @@
 	transition: all 100ms linear;
 }
 
+.radio input:hover {
+  background: #3a0046;
+  outline: 1px solid #d300ff;
+  color: #fff;
+  box-shadow: 0 1px 1px #0000002e;
+  text-shadow: 0 1px 0px #79485f7a;
+}
+
 .radio input:checked {
-	background-image: linear-gradient(180deg, #6600ff, #d300ff);
+	background-image: linear-gradient(180deg, #d300ff, #6600ff);
 	color: #fff;
 	box-shadow: 0 1px 1px #0000002e;
 	text-shadow: 0 1px 0px #79485f7a;

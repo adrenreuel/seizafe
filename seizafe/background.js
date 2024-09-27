@@ -1,11 +1,12 @@
 let seizafestate = true;
 let seizafesensitivity = 2.5;
-// let nowplaying = false;
+let activesites = ["YouTube", "YouTube Shorts"];
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
   chrome.storage.sync.set({ seizafesensitivity });
   chrome.storage.sync.set({ nowplaying });
+  chrome.storage.sync.set({ activesites });
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {

@@ -1,16 +1,24 @@
 // ACTIVE SITES
 document.getElementById("youtube").addEventListener("change", function () {
-  updateActiveSite("youtube", this.value);
+  updateActiveSite("YouTube", this.value);
 });
 
 document
   .getElementById("youtubeshorts")
   .addEventListener("change", function () {
-    updateActiveSite("youtubeshorts", this.value);
+    updateActiveSite("YouTube Shorts", this.value);
   });
 
 function updateActiveSite(site, value) {
-  alert(site);
+  chrome.storage.sync.get(["activesites"], function (result) {
+    let activesites = result.activesites || [];
+    if (value == true) {
+      activesites.push(site);
+    } else {
+      activesites = activesites.filter((activeSite) => activeSite !== site);
+    }
+    chrome.storage.sync.set({ activesites });
+  });
 }
 
 // CUSTOM SENSITIVITY

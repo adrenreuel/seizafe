@@ -37,28 +37,49 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 function seizafe() {
   //YOUTUBE
   if (windowURL.includes("youtube.com/watch")) {
-    // alert("Youtube: " + windowURL);
-    var videoID = windowURL.split("v=")[1];
-    var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
+    // Function to extract video details
+    function extractVideoDetails() {
+      var videoID = windowURL.split("v=")[1].split("&")[0];
+      var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
 
-    var videoTitle = document.querySelector("h1.ytd-watch-metadata");
-    var channelName = document.querySelector("#channel-name");
+      var videoTitle = document.querySelector(
+        "#above-the-fold h1.style-scope.ytd-watch-metadata"
+      );
+      var channelName = document.querySelector("#channel-name");
 
-    chrome.storage.local.set({ platformURL: "youtube.com" });
-    chrome.storage.local.set({ videoURL: windowURL });
-    chrome.storage.local.set({ thumbnail: videoThumbnail });
+      chrome.storage.local.set({ platformURL: "youtube.com" });
+      chrome.storage.local.set({ videoURL: windowURL });
+      chrome.storage.local.set({ thumbnail: videoThumbnail });
 
-    if (videoTitle) {
-      chrome.storage.local.set({ videoTitle: videoTitle.innerText });
+      if (videoTitle) {
+        chrome.storage.local.set({ videoTitle: videoTitle.innerText });
+      }
+
+      if (channelName) {
+        chrome.storage.local.set({ channelName: channelName.innerText });
+      }
     }
-    if (channelName) {
-      chrome.storage.local.set({ channelName: channelName.innerText });
+
+    // Initial extraction
+    extractVideoDetails();
+
+    // Set up a MutationObserver to detect changes in video title or channel name
+    var targetNode = document.querySelector("#above-the-fold");
+    var config = { childList: true, subtree: true };
+
+    var observer = new MutationObserver(function (mutationsList, observer) {
+      for (var mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          extractVideoDetails();
+        }
+      }
+    });
+
+    if (targetNode) {
+      observer.observe(targetNode, config);
     }
 
     var video = document.querySelector("video");
-    var videoparent = video.parentNode;
-    var videoparentparent = videoparent.parentNode;
-
     chrome.storage.sync.get(["seizafestate"], function (result) {
       if (result.seizafestate) {
         video.style.border = "5px solid #6600ff";
@@ -66,14 +87,6 @@ function seizafe() {
         video.style.border = "none";
       }
     });
-
-    // alert(videoparentparent.id);
-    // Youtube previewvideo container
-    var previewvideo = document.getElementById("inline-preview-player");
-    // Youtube movie container
-    var movievideo = document.getElementById("movie_player");
-    // Youtube shorts container
-    var shortsvideo = document.getElementById("shorts-player");
   }
 
   //YOUTUBE SHORTS
@@ -103,5 +116,11 @@ function seizafe() {
     // alert(shortPlayingContainer.length);
   } else {
     // alert("unsupported");
+    // chrome.storage.local unset all
+    chrome.storage.local.set({ platformURL: null });
+    chrome.storage.local.set({ videoURL: null });
+    chrome.storage.local.set({ videoTitle: null });
+    chrome.storage.local.set({ channelName: null });
+    chrome.storage.local.set({ thumbnail: null });
   }
 }

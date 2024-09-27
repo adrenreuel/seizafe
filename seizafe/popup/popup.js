@@ -34,6 +34,7 @@ const videoPlayingURL = document.getElementById("videoPlayingURL");
 const videoPlayingChannel = document.getElementById("videoPlayingChannel");
 const videoPlayingTitle = document.getElementById("videoPlayingTitle");
 const videoPlayingThumbnail = document.getElementById("videoPlayingThumbnail");
+const activeSitesList = document.getElementById("activeSitesList");
 
 // Sensitivity & other settings
 const lowsensitivity = document.getElementById("lowsensitivity");
@@ -188,20 +189,58 @@ chrome.storage.sync.get(["seizafesensitivity"], function (result) {
   }
 });
 
+chrome.storage.sync.get(["activesites"], function (result) {
+  if (result.activesites.length > 0) {
+    result.activesites.forEach((site) => {
+      let li = document.createElement("li");
+      li.innerHTML = site;
+      activeSitesList.appendChild(li);
+    });
+  } else {
+    activeSitesList.innerHTML =
+      "<i class='fas fa-exclamation-circle'></i> No active sites";
+  }
+});
+
+// Function to toggle the "Now Playing" display
+function updateNowPlaying(data) {
+  if (data.videoURL == null) {
+    toggleNowPlaying(false, null);
+  } else {
+    toggleNowPlaying(
+      true,
+      data.platformURL,
+      data.videoURL,
+      data.videoTitle,
+      data.channelName,
+      data.thumbnail
+    );
+  }
+}
+
+// Initial load when the popup is opened
 chrome.storage.local.get(
   ["platformURL", "videoURL", "videoTitle", "channelName", "thumbnail"],
   function (data) {
-    if (typeof data.videoTitle == "undefined") {
-      toggleNowPlaying(false, null);
-    } else {
-      toggleNowPlaying(
-        true,
-        data.platformURL,
-        data.videoURL,
-        data.videoTitle,
-        data.channelName,
-        data.thumbnail
-      );
-    }
+    updateNowPlaying(data);
   }
 );
+
+// Listen for changes in chrome.storage.local
+chrome.storage.onChanged.addListener(function (changes, area) {
+  if (area === "local") {
+    // First, get the current values from chrome.storage.local
+    chrome.storage.local.get(
+      ["platformURL", "videoURL", "videoTitle", "channelName", "thumbnail"],
+      function (currentData) {
+        // Merge the changes with the current values
+        for (let key in changes) {
+          currentData[key] = changes[key].newValue;
+        }
+
+        // Pass the updated data to updateNowPlaying
+        updateNowPlaying(currentData);
+      }
+    );
+  }
+});
