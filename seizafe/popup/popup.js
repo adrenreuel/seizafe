@@ -141,21 +141,21 @@ function toggleNowPlaying(state, platformurl, url, title, channel, thumbnail) {
 // Listen for sensitivity setting changes
 lowsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye_low.png";
-  chrome.storage.sync.set({ seizafesensitivity: 1 }, function () {
+  chrome.storage.sync.set({ currentsensitivity: 1 }, function () {
     animation.setSpeed(1);
   });
 });
 
 bestsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye.png";
-  chrome.storage.sync.set({ seizafesensitivity: 2.5 }, function () {
+  chrome.storage.sync.set({ currentsensitivity: 2.5 }, function () {
     animation.setSpeed(2.5);
   });
 });
 
 highsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye_high.png";
-  chrome.storage.sync.set({ seizafesensitivity: 5 }, function () {
+  chrome.storage.sync.set({ currentsensitivity: 5 }, function () {
     animation.setSpeed(5);
   });
 });
@@ -179,10 +179,10 @@ chrome.storage.sync.get(["seizafestate"], function (result) {
   }
 });
 
-chrome.storage.sync.get(["seizafesensitivity"], function (result) {
-  if (result.seizafesensitivity == 1) {
+chrome.storage.sync.get(["currentsensitivity"], function (result) {
+  if (result.currentsensitivity == 1) {
     lowsensitivity.click();
-  } else if (result.seizafesensitivity == 5) {
+  } else if (result.currentsensitivity == 5) {
     highsensitivity.click();
   } else {
     bestsensitivity.click();
