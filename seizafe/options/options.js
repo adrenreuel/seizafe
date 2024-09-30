@@ -46,7 +46,7 @@ function updateActiveSites(site, value) {
   });
 }
 
-function updateActiveSiteOptions() {
+function loadActiveSiteOptions() {
   chrome.storage.sync.get(["activesites"], function (result) {
     if (result.activesites) {
       result.activesites = result.activesites.toString().split(",");
@@ -85,11 +85,28 @@ ranges.forEach((range) => {
 
 // Update sensitivities
 function updateSensitivities() {
+  let customSensitivity = {};
   ranges.forEach(({ id, output, prefix = "", suffix = "" }) => {
     const rangeValue = document.getElementById(id).value;
     document.getElementById(
       output
     ).innerHTML = `${prefix}${rangeValue}${suffix}`;
+    customSensitivity[output] = rangeValue;
+  });
+  chrome.storage.sync.set({
+    customSensitivity,
+  });
+}
+
+function loadSensitivityOptions() {
+  chrome.storage.sync.get(["customSensitivity"], function (result) {
+    if (result.customSensitivity) {
+      for (let range of ranges) {
+        document.getElementById(range.id).value =
+          result.customSensitivity[range.output];
+      }
+    }
+    updateSensitivities();
   });
 }
 
@@ -126,7 +143,7 @@ function updateWarningOverlay() {
     )`;
 }
 
-function updateWarnignOverlayOptions() {
+function loadWarningOverlayOptions() {
   chrome.storage.sync.get(["customWarning"], function (result) {
     if (result.customWarning) {
       document.getElementById("primaryColor").value =
@@ -193,7 +210,7 @@ function updateMiscSettings(setting, value) {
   });
 }
 
-function updateMiscSettingsOptions() {
+function loadMiscSettingsOptions() {
   chrome.storage.sync.get(["miscSettings"], function (result) {
     if (result.miscSettings) {
       result.miscSettings = result.miscSettings.toString().split(",");
@@ -208,8 +225,8 @@ function updateMiscSettingsOptions() {
 }
 
 window.onload = function () {
-  updateSensitivities();
-  updateActiveSiteOptions();
-  updateWarnignOverlayOptions();
-  updateMiscSettingsOptions();
+  loadActiveSiteOptions();
+  loadSensitivityOptions();
+  loadWarningOverlayOptions();
+  loadMiscSettingsOptions();
 };
