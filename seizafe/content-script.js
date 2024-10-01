@@ -9,9 +9,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     seizafe();
   }
 
-  // if (request.message === "tabchanged") {
-  //   alert("tabchanged");
-  // }
+  if (request.message === "tabchanged") {
+    seizafe();
+  }
 
   // if (request.message === "seizafeon") {
   //   seizafe();

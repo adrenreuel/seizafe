@@ -16,6 +16,7 @@
 // }
 
 // Variable declarations
+let currentsensitivity = 0;
 const stateindicator_container = document.getElementById(
   "stateindicator_container"
 );
@@ -30,14 +31,14 @@ const currentlyPlayingBanner = document.getElementById(
 );
 const nothingPlayingBanner = document.getElementById("nothingPlayingBanner");
 const metaBanner = document.getElementById("metaBanner");
-const videoPlayingURL = document.getElementById("videoPlayingURL");
+const videoPlayingSite = document.getElementById("videoPlayingSite");
 const videoPlayingChannel = document.getElementById("videoPlayingChannel");
 const videoPlayingTitle = document.getElementById("videoPlayingTitle");
 const videoPlayingThumbnail = document.getElementById("videoPlayingThumbnail");
 const activeSitesList = document.getElementById("activeSitesList");
 
 // Sensitivity & other settings
-const lowsensitivity = document.getElementById("lowsensitivity");
+const customsensitivity = document.getElementById("customsensitivity");
 const bestsensitivity = document.getElementById("bestsensitivity");
 const highsensitivity = document.getElementById("highsensitivity");
 const optionslink = document.getElementById("optionslink");
@@ -108,13 +109,20 @@ function toggleSeizafe(state) {
   });
 }
 
-function toggleNowPlaying(state, platformurl, url, title, channel, thumbnail) {
+function toggleNowPlaying(
+  state,
+  currentactivesite,
+  platformurl,
+  url,
+  title,
+  channel,
+  thumbnail
+) {
   // chrome.storage.sync.set({ nowplaying: state }, function () {
   if (state) {
     currentlyPlayingBanner.style.display = "block";
     nothingPlayingBanner.style.display = "none";
-    videoPlayingURL.innerHTML = platformurl;
-    videoPlayingURL.href = url;
+    videoPlayingSite.innerHTML = currentactivesite;
     if (channel) {
       videoPlayingChannel.innerHTML = truncate(channel, 35);
     } else {
@@ -126,8 +134,8 @@ function toggleNowPlaying(state, platformurl, url, title, channel, thumbnail) {
     currentlyPlayingBanner.style.display = "none";
     nothingPlayingBanner.style.display = "block";
     videoPlayingTitle.innerHTML = "";
-    videoPlayingURL.innerHTML = "";
-    videoPlayingURL.href = "";
+    videoPlayingSite.innerHTML = "";
+    videoPlayingSite.href = "";
     videoPlayingThumbnail.style.backgroundImage = "";
   }
   // });
@@ -139,33 +147,43 @@ function toggleNowPlaying(state, platformurl, url, title, channel, thumbnail) {
 // }
 
 // Listen for sensitivity setting changes
-lowsensitivity.addEventListener("click", (event) => {
+customsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye_low.png";
   chrome.storage.sync.set({ currentsensitivity: 1 }, function () {
+    currentsensitivity = 1;
     animation.setSpeed(1);
   });
 });
 
 bestsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye.png";
-  chrome.storage.sync.set({ currentsensitivity: 2.5 }, function () {
+  chrome.storage.sync.set({ currentsensitivity: 2 }, function () {
+    currentsensitivity = 2;
     animation.setSpeed(2.5);
   });
 });
 
 highsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye_high.png";
-  chrome.storage.sync.set({ currentsensitivity: 5 }, function () {
+  chrome.storage.sync.set({ currentsensitivity: 3 }, function () {
+    currentsensitivity = 3;
     animation.setSpeed(5);
   });
 });
 
 optionslink.addEventListener("click", (event) => {
-  chrome.runtime.openOptionsPage();
+  if (currentsensitivity == 1) {
+    chrome.tabs.create({
+      active: true,
+      url: chrome.runtime.getURL("options/options.html#customsensitivity"),
+    });
+  } else {
+    chrome.runtime.openOptionsPage();
+  }
 });
 
-videoPlayingURL.addEventListener("click", (event) => {
-  chrome.tabs.create({ active: true, url: videoPlayingURL.href });
+videoPlayingSite.addEventListener("click", (event) => {
+  chrome.tabs.create({ active: true, url: videoPlayingSite.href });
 });
 
 // Get seizafe synced settings
@@ -181,12 +199,13 @@ chrome.storage.sync.get(["seizafestate"], function (result) {
 
 chrome.storage.sync.get(["currentsensitivity"], function (result) {
   if (result.currentsensitivity == 1) {
-    lowsensitivity.click();
-  } else if (result.currentsensitivity == 5) {
+    customsensitivity.click();
+  } else if (result.currentsensitivity == 2) {
     highsensitivity.click();
   } else {
     bestsensitivity.click();
   }
+  currentsensitivity = result.currentsensitivity;
 });
 
 chrome.storage.sync.get(["activesites"], function (result) {
@@ -200,11 +219,12 @@ chrome.storage.sync.get(["activesites"], function (result) {
 
 // Function to toggle the "Now Playing" display
 function updateNowPlaying(data) {
-  if (data.videoURL == null) {
+  if (data.videoURL == null || data.currentActiveSite == null) {
     toggleNowPlaying(false, null);
   } else {
     toggleNowPlaying(
       true,
+      data.currentActiveSite,
       data.platformURL,
       data.videoURL,
       data.videoTitle,
@@ -216,7 +236,14 @@ function updateNowPlaying(data) {
 
 // Initial load when the popup is opened
 chrome.storage.local.get(
-  ["platformURL", "videoURL", "videoTitle", "channelName", "thumbnail"],
+  [
+    "currentActiveSite",
+    "platformURL",
+    "videoURL",
+    "videoTitle",
+    "channelName",
+    "thumbnail",
+  ],
   function (data) {
     updateNowPlaying(data);
   }
@@ -227,7 +254,14 @@ chrome.storage.onChanged.addListener(function (changes, area) {
   if (area === "local") {
     // First, get the current values from chrome.storage.local
     chrome.storage.local.get(
-      ["platformURL", "videoURL", "videoTitle", "channelName", "thumbnail"],
+      [
+        "currentActiveSite",
+        "platformURL",
+        "videoURL",
+        "videoTitle",
+        "channelName",
+        "thumbnail",
+      ],
       function (currentData) {
         // Merge the changes with the current values
         for (let key in changes) {

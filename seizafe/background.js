@@ -1,5 +1,5 @@
 let seizafestate = true;
-let currentsensitivity = 2.5;
+let currentsensitivity = 2;
 let activesites = ["YouTube", "YouTube Shorts"];
 let customSensitivity = {
   redLevels: 0,
@@ -15,6 +15,8 @@ let customWarning = {
   primaryColor: "#6600ff",
   secondaryColor: "#bb00ff",
 };
+let currentActiveTabURL = null;
+let currentActiveSite = null;
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
@@ -26,18 +28,16 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ miscSettings });
 });
 
-chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
-  if (info.url) {
-    chrome.tabs.sendMessage(tabId, {
-      message: "urlchanged",
-      url: info.url,
-    });
-  }
-});
+// chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
+//   if (info.url) {
+//     chrome.tabs.sendMessage(tabId, {
+//       message: "urlchanged",
+//       url: info.url,
+//     });
+//   }
+// });
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
-  // console.log(activeInfo.tabId);
-  // console.log(activeInfo);
   chrome.tabs.query(
     {
       active: true,
@@ -46,7 +46,22 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
     function (tabs) {
       var tabId = tabs[0].id;
       var tabURL = tabs[0].url;
-      console.log(tabURL);
+
+      if (tabURL.includes("youtube.com/watch")) {
+        currentActiveSite = "YouTube";
+        currentActiveTabURL = tabURL;
+      } else if (tabURL.includes("youtube.com/shorts")) {
+        currentActiveSite = "YouTube Shorts";
+        currentActiveTabURL = tabURL;
+      } else {
+        currentActiveSite = null;
+        currentActiveTabURL = null;
+      }
+
+      console.log(currentActiveSite);
+
+      chrome.storage.local.set({ currentActiveSite });
+      chrome.storage.local.set({ currentActiveTabURL });
 
       chrome.tabs.sendMessage(tabId, {
         message: "tabchanged",
