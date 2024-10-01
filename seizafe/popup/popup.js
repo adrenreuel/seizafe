@@ -153,6 +153,7 @@ customsensitivity.addEventListener("click", (event) => {
     currentsensitivity = 1;
     animation.setSpeed(1);
   });
+  updateOptionsLink(1);
 });
 
 bestsensitivity.addEventListener("click", (event) => {
@@ -161,6 +162,7 @@ bestsensitivity.addEventListener("click", (event) => {
     currentsensitivity = 2;
     animation.setSpeed(2.5);
   });
+  updateOptionsLink(2);
 });
 
 highsensitivity.addEventListener("click", (event) => {
@@ -169,7 +171,16 @@ highsensitivity.addEventListener("click", (event) => {
     currentsensitivity = 3;
     animation.setSpeed(5);
   });
+  updateOptionsLink(5);
 });
+
+function updateOptionsLink(setting) {
+  if (setting == 1) {
+    optionslink.innerHTML = "<i class='fas fa-cog'></i> Customize Sensitivity";
+  } else {
+    optionslink.innerHTML = "<i class='fas fa-cog'></i> More Options";
+  }
+}
 
 optionslink.addEventListener("click", (event) => {
   if (currentsensitivity == 1) {

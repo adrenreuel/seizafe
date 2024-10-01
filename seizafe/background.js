@@ -28,14 +28,14 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ miscSettings });
 });
 
-// chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
-//   if (info.url) {
-//     chrome.tabs.sendMessage(tabId, {
-//       message: "urlchanged",
-//       url: info.url,
-//     });
-//   }
-// });
+chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
+  if (info.url) {
+    chrome.tabs.sendMessage(tabId, {
+      message: "urlchanged",
+      url: info.url,
+    });
+  }
+});
 
 chrome.tabs.onActivated.addListener(function (activeInfo) {
   chrome.tabs.query(

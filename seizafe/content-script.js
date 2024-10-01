@@ -5,7 +5,6 @@ seizafe();
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
     windowURL = request.url;
-    // alert("URL Changed " + windowURL);
     seizafe();
   }
 
@@ -92,7 +91,6 @@ function seizafe() {
   //YOUTUBE SHORTS
   else if (windowURL.includes("youtube.com/shorts")) {
     // var video = document.querySelector("video");
-    // alert("Youtube Shorts: " + windowURL);
 
     var shortPlayingContainer = document.querySelector(
       "ytd-reel-video-renderer[is-active]"
@@ -101,6 +99,48 @@ function seizafe() {
       "yt-formatted-string.ytd-reel-player-header-renderer"
     );
     var channelName = shortPlayingContainer.querySelector("#channel-name");
+
+    function extractVideoDetails() {
+      // var videoID = windowURL.split("v=")[1].split("&")[0];
+      var videoID = windowURL.split("shorts/")[1].split("&")[0];
+      var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
+
+      var videoTitle = document.querySelector(
+        "#above-the-fold h1.style-scope.ytd-watch-metadata"
+      );
+      var channelName = document.querySelector("#channel-name");
+
+      chrome.storage.local.set({ platformURL: "youtube.com/shorts" });
+      chrome.storage.local.set({ videoURL: windowURL });
+      chrome.storage.local.set({ thumbnail: videoThumbnail });
+
+      if (videoTitle) {
+        chrome.storage.local.set({ videoTitle: videoTitle.innerText });
+      }
+
+      if (channelName) {
+        chrome.storage.local.set({ channelName: channelName.innerText });
+      }
+    }
+
+    // Initial extraction
+    extractVideoDetails();
+
+    // Set up a MutationObserver to detect changes in video title or channel name
+    var targetNode = document.querySelector("#above-the-fold");
+    var config = { childList: true, subtree: true };
+
+    var observer = new MutationObserver(function (mutationsList, observer) {
+      for (var mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          extractVideoDetails();
+        }
+      }
+    });
+
+    if (targetNode) {
+      observer.observe(targetNode, config);
+    }
 
     chrome.storage.local.set({ platformURL: "youtube.com/shorts" });
     chrome.storage.local.set({ videoURL: windowURL });
