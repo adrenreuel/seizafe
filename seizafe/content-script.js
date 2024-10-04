@@ -1,11 +1,13 @@
 var windowURL = window.location.toString();
 var video = null;
+var seizafeIntervalId = null;
+
 seizafe();
 
 // listen for messages sent from background.js
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
-    windowURL = request.url;
+    // windowURL = request.url;
     seizafe();
   }
 
@@ -22,21 +24,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   }
 });
 
-// function observeTitle() {
-// var target = document.querySelector(".ytd-watch-metadata");
-// // create an observer instance
-// var observer = new MutationObserver(function (mutations) {
-//   mutations.forEach(function (mutation) {
-//     alert(mutation.type);
-//   });
-// });
-// // configuration of the observer:
-// var config = { attributes: true, childList: true, characterData: true };
-// // pass in the target node, as well as the observer options
-// observer.observe(target, config);
-// }
-
 function seizafe() {
+  // unmountSeizafeCanvas();
+
   //YOUTUBE
   if (windowURL.includes("youtube.com/watch")) {
     // Function to extract video details
@@ -60,7 +50,7 @@ function seizafe() {
       if (channelName) {
         chrome.storage.local.set({ channelName: channelName.innerText });
       }
-      // updateCanvas();
+      // drawSeizafeCanvas();
     }
 
     // Initial extraction
@@ -126,7 +116,7 @@ function seizafe() {
       if (channelName) {
         chrome.storage.local.set({ channelName: channelName.innerText });
       }
-      // updateCanvas();
+      // drawSeizafeCanvas();
     }
 
     // Initial extraction
@@ -179,16 +169,20 @@ function seizafe() {
     chrome.storage.local.set({ channelName: null });
     chrome.storage.local.set({ thumbnail: null });
     video = null;
-    // updateCanvas();
+    // drawSeizafeCanvas();
   }
-  updateCanvas();
+  drawSeizafeCanvas();
 }
 
-function updateCanvas() {
+function drawSeizafeCanvas() {
+  // alert("drawing");
+
   // SEIZAFE DEBUG CANVAS
   let seizafeDiv = document.getElementById("seizafe-debug-container");
 
-  if (!seizafeDiv) {
+  if (seizafeDiv) {
+    seizafeDiv.remove(); // Remove the entire debug div
+  } else {
     // Create the div container if it doesn't exist
     seizafeDiv = document.createElement("div");
     seizafeDiv.id = "seizafe-debug-container"; // Assign an ID for future checks
@@ -281,10 +275,20 @@ function updateCanvas() {
     });
 
     // Draw frame every 100ms (Customizable)
-    setInterval(drawFrame, 100);
-  } else {
-    // alert("canvas removed");
-    // Remove canvas if it already exists
-    // canvas.remove();
+    seizafeIntervalId = setInterval(drawFrame, 100);
+  }
+}
+
+// Unmount function to remove the canvas and stop the interval
+function unmountSeizafeCanvas() {
+  // alert("unmounting");
+  const seizafeDiv = document.getElementById("seizafe-debug-container");
+  if (seizafeDiv) {
+    seizafeDiv.remove(); // Remove the entire debug div
+  }
+
+  if (seizafeIntervalId) {
+    clearInterval(seizafeIntervalId); // Clear the interval to stop drawing frames
+    seizafeIntervalId = null; // Reset the interval ID
   }
 }
