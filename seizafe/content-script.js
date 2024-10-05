@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function seizafe() {
-  // unmountSeizafeCanvas();
+  unmountSeizafeCanvas();
 
   //YOUTUBE
   if (windowURL.includes("youtube.com/watch")) {
