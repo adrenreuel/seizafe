@@ -25,8 +25,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 function seizafe() {
-  // unmountSeizafeCanvas();
-
   //YOUTUBE
   if (windowURL.includes("youtube.com/watch")) {
     // Function to extract video details
@@ -169,13 +167,13 @@ function seizafe() {
     chrome.storage.local.set({ channelName: null });
     chrome.storage.local.set({ thumbnail: null });
     video = null;
-    // drawSeizafeCanvas();
+    drawSeizafeCanvas();
   }
   drawSeizafeCanvas();
 }
 
 function drawSeizafeCanvas() {
-  // alert("drawing");
+  alert("drawing");
 
   // SEIZAFE DEBUG CANVAS
   let seizafeDiv = document.getElementById("seizafe-debug-container");
@@ -274,8 +272,8 @@ function drawSeizafeCanvas() {
       }
     });
 
-    // Draw frame every 100ms (Customizable)
-    seizafeIntervalId = setInterval(drawFrame, 100);
+    // Draw frame every 50ms (Customizable)
+    seizafeIntervalId = setInterval(drawFrame, 50);
   }
 }
 
