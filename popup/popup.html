@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="popup.css"
+    />
+    <script src="../assets/lottie.min.js"></script>
+
+    <!-- fonts -->
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+      integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+      crossorigin="anonymous"
+    /> -->
+
+    <style>
+      @font-face {
+        font-family: "Technology";
+        src: url("../assets/technology.ttf") format("truetype");
+      }
+      .technology {
+        font-family: "Technology", sans-serif;
+      }
+      .montserrat {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .row {
+        display: flex;
+      }
+
+      .col-1 {
+        flex: 0 0 8.33%; /* Set width to 8.33% (1/12) */
+        max-width: 8.33%;
+      }
+
+      .col {
+        flex: 1; /* Take up remaining space */
+      }
+
+      /* Add some styling for better visibility */
+      .row,
+      .col-1,
+      .col {
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body style="margin: 0px !important">
+    <div
+      style="
+        width: 250px;
+        padding: 0;
+        margin: 0;
+        background-color: #000000 !important;
+        background-image: url('../assets/images/noise-light.png');
+        background-size: 80%;
+        background-repeat: repeat !important;
+        border-width: 1;
+        border-style: double;
+        border-color: black;
+        position: relative;
+      "
+    >
+      <div
+        class="stateindicator_container"
+        id="stateindicator_container"
+      >
+        <div
+          id="animationcontainer"
+          style="
+            width: 300px;
+            position: absolute;
+            z-index: 200;
+            display: none;
+            opacity: 0.5;
+          "
+        ></div>
+        <div
+          class="stateindicatoranimated"
+          id="seizafe_stateindicatoron"
+        ></div>
+        <div
+          class="stateindicatoranimated"
+          id="seizafe_stateindicatoroff"
+        ></div>
+        <div style="position: absolute; z-index: 10; width: 100%; height: 100%">
+          <img
+            id="seizafe_eye_open"
+            src="../assets/seizafe_eye.png"
+            style="width: 100px; padding-top: 15px; display: none"
+          />
+          <img
+            id="seizafe_eye_closed"
+            src="../assets/seizafe_eye_closed.png"
+            style="width: 100px; padding-top: 15px"
+          />
+          <h1
+            class="montserrat"
+            style="
+              line-height: 0;
+              color: white;
+              font-weight: 800;
+              font-size: 30px;
+            "
+          >
+            Seizafe
+          </h1>
+          <h5
+            class="montserrat"
+            style="
+              line-height: 0.2;
+              color: white;
+              font-weight: 400;
+              font-size: 14px;
+              margin-top: -3px;
+            "
+          >
+            for Epilepsy
+          </h5>
+        </div>
+      </div>
+
+      <!-- <a href="#">
+        <div style="position: absolute; top: 10px; right: 10px">
+          <i
+            class="fas fa-cog"
+            style="color: rgba(255, 255, 255, 0.64); font-size: 20px"
+          ></i></div
+      ></a> -->
+
+      <div
+        id="metaBanner"
+        style="display: none"
+      >
+        <div id="nothingPlayingBanner">
+          <p
+            class="montserrat"
+            style="
+              font-size: 8px;
+              font-weight: 700;
+              color: rgba(255, 255, 255, 0.765);
+              text-align: center;
+            "
+          >
+            <b
+              style="
+                font-size: 10px;
+                font-weight: 900;
+                transform: rotate(-45deg);
+                display: inline-block;
+                margin-right: 5px;
+                color: #eb87ff;
+              "
+              >Zzz</b
+            >
+            Nothing's playing on this website
+          </p>
+        </div>
+
+        <div
+          id="currentlyPlayingBanner"
+          style="display: none"
+        >
+          <table style="width: 100%">
+            <tr>
+              <td style="text-align: left">
+                <!-- <i
+                  class="fas fa-play-circle"
+                  style="color: white; font-size: 20px"
+                ></i> -->
+                <div
+                  id="videoPlayingThumbnail"
+                  style="
+                    width: 70px;
+                    height: 50px;
+                    background-color: #000000;
+                    border-radius: 5px;
+                    background-size: cover;
+                    background-position: center;
+                  "
+                ></div>
+              </td>
+              <td style="text-align: left; width: 80%; padding-left: 10px">
+                <p
+                  id="videoPlayingSite"
+                  class="montserrat"
+                  style="
+                    font-size: 6px;
+                    color: rgb(255, 82, 241);
+                    text-decoration: none;
+                    margin: 0;
+                    padding: 0;
+                  "
+                >
+                  site
+                </p>
+                <p
+                  id="videoPlayingChannel"
+                  class="montserrat"
+                  style="
+                    font-size: 6px;
+                    color: rgb(255, 82, 241);
+                    text-decoration: none;
+                    margin: 0;
+                    padding: 0;
+                    font-weight: 800;
+                  "
+                >
+                  channel
+                </p>
+                <p
+                  id="videoPlayingTitle"
+                  class="montserrat"
+                  style="
+                    font-size: 8px;
+                    font-weight: 700;
+                    color: white;
+                    margin: 0;
+                    padding: 0;
+                    padding-bottom: 5px;
+                  "
+                >
+                  Title
+                </p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div
+        class="montserrat"
+        style="text-align: center"
+      >
+        <p
+          class="montserrat"
+          style="font-size: 12px; font-weight: 800; color: rgb(219, 219, 219)"
+        >
+          SEIZAFE IS
+        </p>
+
+        <div
+          class="button r"
+          id="button-3"
+          style="margin-top: 5px"
+        >
+          <input
+            type="checkbox"
+            class="checkbox"
+            id="seizafe_state"
+          />
+          <div class="knobs"></div>
+          <div class="layer"></div>
+        </div>
+
+        <!-- <div
+          style="
+            background-color: #000000;
+            opacity: 1;
+            background-image: linear-gradient(
+                135deg,
+                #171717 25%,
+                transparent 25%
+              ),
+              linear-gradient(225deg, #171717 25%, transparent 25%),
+              linear-gradient(45deg, #171717 25%, transparent 25%),
+              linear-gradient(315deg, #171717 25%, #000000 25%);
+            background-position: 10px 0, 10px 0, 0 0, 0 0;
+            background-size: 20px 20px;
+            background-repeat: repeat;
+            margin-top: 20px;
+            padding-top: 2px;
+            padding-bottom: 20px;
+            position: relative;
+          "
+        > -->
+        <div
+          style="
+            /* background-color: #171717; */
+            background: rgb(0, 0, 0);
+            background: linear-gradient(
+              0deg,
+              rgba(0, 0, 0, 0) 0%,
+              rgba(46, 0, 73, 0.715) 50%,
+              rgba(0, 0, 0, 0) 100%
+            );
+            margin-top: -20px;
+            padding-top: 30px;
+            padding-bottom: 20px;
+            position: relative;
+          "
+        >
+          <div style="position: relative">
+            <p
+              class="montserrat"
+              style="
+                font-size: 12px;
+                font-weight: 400;
+                color: rgb(219, 219, 219);
+              "
+            >
+              SENSITIVITY
+            </p>
+            <div class="radio montserrat">
+              <input
+                class="montserrat"
+                label="OPTIMAL &#x2728;"
+                type="radio"
+                id="bestsensitivity"
+                name="sensitivity_radio"
+                value="best"
+                checked
+              />
+              <input
+                class="montserrat"
+                label="HIGH &#x26A1;"
+                type="radio"
+                id="highsensitivity"
+                name="sensitivity_radio"
+                value="high"
+              />
+              <input
+                class="montserrat"
+                label="CUSTOM &#x1F39B;"
+                type="radio"
+                id="customsensitivity"
+                name="sensitivity_radio"
+                value="custom"
+              />
+            </div>
+          </div>
+          <br />
+          <a
+            id="optionslink"
+            href="#"
+            ><i class="fas fa-cog"></i> More Options
+          </a>
+        </div>
+
+        <div style="padding-top: 10px; padding-bottom: 20px">
+          <p style="font-size: 8px; color: gray">
+            <b>ENABLED ON;</b> 
+            <p id="activeSitesList" style="font-size: 8px; color: gray">
+            </p>
+          </p>
+          <!-- <p style="font-size: 8px; color: gray"><b>WORKS ON;</b></p>
+          <div class="scrollmenu">
+            <a href="#">YouTube</a>
+            <a href="#">Vimeo</a>
+            <a href="#">Dailymotion</a>
+            <a href="#">Facebook</a>
+            <a href="#">Instagram</a>
+            <a href="#">TikTok</a>
+            <a href="#">Reddit</a>
+            <a href="#">Netflix</a>
+            <a href="#">Prime Video</a>
+            <a href="#">Disney+</a>
+            <a href="#">HBO</a>
+          </div> -->
+
+          <hr
+            class="solid"
+            style="width: 80%; border: 0; border-top: 1px solid #ccc"
+          />
+
+          <!-- <div
+            style="
+              transform: scale(0.6);
+              margin-top: -5px;
+              margin-bottom: -28px;
+            "
+          >
+            <input id="adscheckbox" type="checkbox" />
+            <label for="adscheckbox" style="color: white">
+              Display ads on alerts <br />(Supports the developer)</label
+            >
+          </div> -->
+
+          <div style="margin-top: 10px">
+            <a
+              class="footerlink"
+              href=""
+              ><i class="fas fa-hand-holding-usd"></i> Support
+            </a>
+            |
+            <a
+              class="footerlink"
+              href=""
+              ><i class="fab fa-instagram"></i> Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

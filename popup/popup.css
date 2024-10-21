@@ -1,0 +1,324 @@
+  /* Seizafe styles */
+  #nothingPlayingBanner{
+    background-color: #120015;
+    border: 2px solid #3e004a;
+    box-shadow: 0 0 20px #480256;
+    padding-inline: 30px;
+    padding-block: 5px;
+    margin-inline: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+    text-align: left;
+  }
+
+  #currentlyPlayingBanner{
+    background-color: #3a0046;
+    border: 1px solid #9600b4;
+    padding-inline: 10px;
+    padding-block: 5px;
+    margin-inline: 15px;
+    margin-top: 15px;
+    border-radius: 10px;
+    text-align: left;
+    display: flex;
+  }
+
+  #optionslink {
+    text-decoration: none;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+  }
+
+  #optionslink:hover {
+    text-decoration: underline;
+  }
+
+  .footerlink{
+    font-size: 10px;
+    color: rgb(255, 82, 241);
+    text-decoration: none;
+  } 
+
+  .footerlink:hover {
+    text-decoration: underline;
+  }
+
+  .stateindicator_container {
+    position: relative;
+    height: 142px;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+  }
+
+  .stateindicatoranimated {
+    -webkit-transition: all 0.4s linear;
+    -moz-transition: all 0.4s linear;
+    -o-transition: all 0.4s linear;
+    transition: all 0.4s linear;
+  }
+
+  #seizafe_stateindicatoroff {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgb(52, 52, 52);
+    background: linear-gradient(
+        360deg,
+        rgb(28, 28, 28) 37%,
+        rgb(134, 134, 134) 100%
+    );
+  }
+
+  #seizafe_stateindicatoron {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgb(102, 0, 255);
+    background: linear-gradient(
+    360deg,
+    rgba(102, 0, 255, 1) 37%,
+    rgba(211, 0, 255, 1) 100%
+    );
+  }
+
+  /* Toggle button */
+  .button-cover,
+  .knobs,
+  .layer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  
+  .button {
+    position: relative;
+    top: 50%;
+    width: 108px;
+    height: 50px;
+    margin: -20px auto 0 auto;
+    overflow: hidden;
+  }
+  
+  .button.r,
+  .button.r .layer {
+    border-radius: 100px;
+    /* outline: 1px solid #d300ff; */
+  }
+  
+  .button.b2 {
+    border-radius: 2px;
+  }
+  
+  .checkbox {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+  }
+  
+  .knobs {
+    z-index: 2;
+  }
+  
+  .layer {
+    width: 100%;
+    background-color: #e0e0e0;
+    transition: 0.3s ease all;
+    z-index: 1;
+  }
+
+/* Button 3 */
+#button-3 .knobs:before {
+    content: "OFF";
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 31px;
+    height: 19px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.9;
+    padding: 10px 4px;
+    background-color: #2d3031;
+    border-width: 1;
+    border-style: solid;
+    border-color: #1a1a1a;
+    border-radius: 50%;
+    transition: 0.3s ease all, left 0.3s cubic-bezier(0.18, 0.89, 0.35, 1.15);
+  }
+  
+  #button-3 .checkbox:active + .knobs:before {
+    width: 46px;
+    border-radius: 100px;
+  }
+  
+  #button-3 .checkbox:checked:active + .knobs:before {
+    margin-left: -26px;
+  }
+  
+  #button-3 .checkbox:checked + .knobs:before {
+    content: "ON";
+    left: 62px;
+    /* background-color: #6600ff; */
+    color: #ffffff;
+    background-image: radial-gradient(
+      circle at 0% 10%,
+      #6a00ff 0%,
+      #b52aff 100%
+    );
+    border-width: 1;
+    border-style: solid;
+    border-color: #5403cd;
+    /* box-shadow: 0 0 0 20px #b93cdf; */
+  }
+  
+  #button-3 .checkbox:checked ~ .layer {
+    background-color: #efd6f5;
+  }
+
+  /* Radio buttons */
+/* .radio {
+	background: #454857;
+	padding: 4px;
+  margin: 10px;
+	border-radius: 3px;
+	box-shadow: inset 0 0 0 3px rgba(35, 33, 45, 0.3),
+		0 0 0 3px rgba(185, 185, 185, 0.3);
+	position: relative;
+} */
+
+.radio input {
+	width: auto;
+	height: 100%;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	outline: none;
+	cursor: pointer;
+	border-radius: 5px;
+	padding: 10px 7px;
+	background: #454857;
+	color: #bdbdbdbd;
+	font-size: 10px;
+	/* font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		"Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; */
+    font-weight: bold;
+	transition: all 100ms linear;
+}
+
+.radio input:hover {
+  background: #3a0046;
+  outline: 1px solid #d300ff;
+  color: #fff;
+  box-shadow: 0 1px 1px #0000002e;
+  text-shadow: 0 1px 0px #79485f7a;
+}
+
+.radio input:checked {
+	background-image: linear-gradient(180deg, #d300ff, #6600ff);
+	color: #fff;
+	box-shadow: 0 1px 1px #0000002e;
+	text-shadow: 0 1px 0px #79485f7a;
+}
+
+.radio input:before {
+	content: attr(label);
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+}
+
+div.scrollmenu {
+  overflow: auto;
+  white-space: nowrap;
+  margin-inline: 10px;
+  /* Hide scrollbar */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+
+div.scrollmenu::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+div.scrollmenu a {
+  display: inline-block;
+  color: rgb(185, 185, 185);
+  text-align: center;
+  padding: 14px;
+  margin: 5px;
+  background-color: #333;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+div.scrollmenu a:hover {
+  background-color: #777;
+}
+
+/* Seizafe overlay */
+ .seizafe_warning {
+    position: relative;
+    display:inline-block;
+    margin: 0 auto;
+  }
+  .seizafe_warning video {
+    display: block;
+  }
+  .seizafe_warning:before {
+    content: '';
+    position: absolute;
+    background: rgb(42,0,104);
+    background: linear-gradient(360deg, rgba(25, 0, 62, 0.918) 33%, rgba(0, 0, 0, 0.954) 56%, rgba(115, 21, 255, 0.912) 100%);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 200;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+    opacity: 1;
+  }
+
+  .seizafe_warning:hover::before {
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  .seizafe_border {
+    position: relative;
+    display:inline-block;
+    margin: 0 auto;
+    border-style: dotted;
+    border-color: #6600ff;
+  }
+
+  .seizafe_border video {
+    display: block;
+  }
+
+  .seizafe_border:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -200;
+  }
