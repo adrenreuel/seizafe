@@ -15,7 +15,7 @@ const settings = {
 seizafeScript();
 const seizafeInstance = new Seizafe(settings);
 
-// listen for messages sent from background.js and call seizafe script
+// listen for messages sent from background.js
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
     // windowURL = request.url;
