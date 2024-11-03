@@ -108,7 +108,10 @@
   .button.r,
   .button.r .layer {
     border-radius: 100px;
-    /* outline: 1px solid #d300ff; */
+  }
+
+  .button:hover {
+    outline: 1px solid #d300ff;
   }
   
   .button.b2 {
