@@ -184,13 +184,10 @@ function seizafeScript() {
 }
 
 function drawSeizafeCanvas() {
-  // alert("drawing");
-
-  // SEIZAFE DEBUG CANVAS
   let seizafeDiv = document.getElementById("seizafe-debug-container");
 
   if (seizafeDiv) {
-    seizafeDiv.remove(); // Remove the entire debug div
+    seizafeDiv.remove(); // Remove the entire debug div if it exists
   } else {
     // Create the div container if it doesn't exist
     seizafeDiv = document.createElement("div");
@@ -214,114 +211,78 @@ function drawSeizafeCanvas() {
     debugText.style.fontWeight = "bold";
     seizafeDiv.appendChild(debugText);
 
-    // Create the canvas inside the div
+    // Create the canvas inside the div for the moving graph
     const canvas = document.createElement("canvas");
     canvas.id = "seizafe-frame-canvas"; // Assign an ID for future checks
     seizafeDiv.appendChild(canvas);
 
-    // Get the video dimensions and calculate the aspect ratio
-    var aspectRatio = video.videoWidth / video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    let dataPoints = []; // Store the data points for the graph
+    const maxPoints = 100; // Number of data points to display at once
+    const graphHeight = 100; // Height of the graph area
+    const graphWidth = 500; // Width of the graph area
+    let graphOffsetX = 0; // To move the graph as time progresses
 
-    // Set the minimum dimensions
-    var minWidth = 200;
-    var minHeight = 100;
+    // Set canvas size
+    canvas.width = graphWidth;
+    canvas.height = graphHeight;
 
-    // Determine the new canvas size based on the aspect ratio
-    if (aspectRatio > 1) {
-      // Landscape video
-      canvas.width = Math.max(video.videoWidth / 10, minWidth);
-      canvas.height = canvas.width / aspectRatio; // Maintain aspect ratio
-    } else {
-      // Portrait or square video
-      canvas.height = Math.max(video.videoHeight / 10, minHeight);
-      canvas.width = canvas.height * aspectRatio; // Maintain aspect ratio
+    // Function to draw the graph
+    function drawGraph() {
+      // Clear the canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the grid and axes (optional)
+      ctx.strokeStyle = "#ccc";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, graphHeight);
+      ctx.lineTo(graphWidth, graphHeight); // X-axis
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, graphHeight); // Y-axis
+      ctx.stroke();
+
+      // Draw the data points as a line graph
+      ctx.strokeStyle = "#ff6600"; // Graph line color
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+
+      // Iterate over the dataPoints array and plot the points
+      dataPoints.forEach((point, index) => {
+        const x = (graphOffsetX + index) % graphWidth; // Scroll the graph horizontally
+        const y = graphHeight - point.value; // Invert Y-axis to fit the canvas
+        if (index === 0) {
+          ctx.moveTo(x, y); // Start the line at the first point
+        } else {
+          ctx.lineTo(x, y); // Draw lines between points
+        }
+      });
+      ctx.stroke();
     }
 
-    // Ensure minimum height is not less than 50px
-    if (canvas.height < minHeight) {
-      canvas.height = minHeight;
-      canvas.width = minHeight * aspectRatio; // Adjust width to maintain aspect ratio
-    }
+    // Function to add new data point (you can change this based on the data you are processing)
+    function updateGraph(seizafeAnalysis) {
+      // Push the new data (e.g., avgRed, avgGreen, avgBlue)
+      const seizureData = seizafeAnalysis; // Can be any numeric value like seizure risk level
+      dataPoints.push({ value: seizureData });
 
-    // Ensure minimum width is not less than 100px
-    if (canvas.width < minWidth) {
-      canvas.width = minWidth;
-      canvas.height = minWidth / aspectRatio; // Adjust height to maintain aspect ratio
-    }
-
-    seizafeDiv.style.width = canvas.width + "px";
-    var ctx = canvas.getContext("2d");
-
-    // Draw video frame to canvas
-    function drawFrame() {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Get the image data from the canvas
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data; // This is a flat array of all pixel data [r, g, b, a, r, g, b, a, ...]
-
-      let totalRed = 0;
-      let totalGreen = 0;
-      let totalBlue = 0;
-      let totalPixels = 0;
-
-      // Loop through every pixel (r, g, b, a) in the data array
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i]; // Red value
-        const g = data[i + 1]; // Green value
-        const b = data[i + 2]; // Blue value
-
-        // Sum up the red, green, and blue values
-        totalRed += r;
-        totalGreen += g;
-        totalBlue += b;
-
-        totalPixels++; // Count the number of pixels
+      // Limit the number of data points to maxPoints
+      if (dataPoints.length > maxPoints) {
+        dataPoints.shift(); // Remove the oldest point
       }
 
-      // Calculate the average values for red, green, and blue
-      const avgRed = parseFloat((totalRed / totalPixels).toFixed(2));
-      const avgGreen = parseFloat((totalGreen / totalPixels).toFixed(2));
-      const avgBlue = parseFloat((totalBlue / totalPixels).toFixed(2));
+      graphOffsetX += 5; // Move the graph to the right as time progresses
 
-      // Pass the average RGB values to the Seizafe class's processFrame method
-      const seizafeAnalysis = seizafeInstance.processFrame(
-        avgRed,
-        avgGreen,
-        avgBlue
-      );
-
-      console.log(seizafeAnalysis);
+      // Draw the graph with updated data
+      drawGraph();
     }
 
-    // Make the entire div moveable
-    let isDragging = false;
-    let offset = { x: 0, y: 0 };
-
-    seizafeDiv.addEventListener("mousedown", function (e) {
-      isDragging = true;
-      offset.x = e.offsetX;
-      offset.y = e.offsetY;
-      seizafeDiv.style.cursor = "grabbing"; // Change cursor while dragging
-      document.body.style.userSelect = "none"; // Prevent text selection
-    });
-
-    document.addEventListener("mouseup", function () {
-      isDragging = false;
-      seizafeDiv.style.cursor = "grab"; // Revert cursor when not dragging
-      document.body.style.userSelect = ""; // Re-enable text selection
-    });
-
-    document.addEventListener("mousemove", function (e) {
-      if (isDragging) {
-        // Calculate new position and move the entire div
-        seizafeDiv.style.top = e.clientY - offset.y + "px";
-        seizafeDiv.style.left = e.clientX - offset.x + "px";
-      }
-    });
-
-    // Draw frame every 50ms (Customizable)
-    seizafeIntervalId = setInterval(drawFrame, 50);
+    // Simulate receiving new data from seizafeAnalysis (replace with your actual analysis data)
+    setInterval(() => {
+      // Assuming seizafeAnalysis returns a numeric value for seizure risk level
+      const seizafeAnalysis = Math.random() * graphHeight; // Random value for demonstration
+      updateGraph(seizafeAnalysis); // Update the graph with new data
+    }, 100); // Update every 100ms (adjust as needed)
   }
 }
 

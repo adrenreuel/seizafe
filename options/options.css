@@ -59,7 +59,8 @@ input[type="checkbox"] {
     visibility: hidden;
     min-width: 250px; 
     margin-left: -125px; 
-    background-color: #730066;
+    background: rgb(115,0,102);
+background: radial-gradient(circle, rgba(115,0,102,1) 0%, rgba(115,0,255,1) 100%);
     color: #fff; 
     text-align: center; 
     border-radius: 2px; 
@@ -129,21 +130,30 @@ input[type="checkbox"] {
   }
 
   #flashFrequency {
-    background: linear-gradient(
-                0deg,
-                rgba(102, 0, 255, 1) 37%,
-                rgba(211, 0, 255, 1) 100%
-              );
+    background-color: rgb(0, 0, 0) !important;
     border: 1px solid rgb(108, 108, 108);
     color: #ffffff;
   }
 
   #movingAverage {
-    background: linear-gradient(
-                0deg,
-                rgba(102, 0, 255, 1) 37%,
-                rgba(211, 0, 255, 1) 100%
-              );
+    background-color: rgb(0, 0, 0) !important;
+    border: 1px solid rgb(108, 108, 108);
+    color: #ffffff;
+  }
+
+  .form-control-color{
+    visibility: hidden;
+    margin-top: -40px;
+  }
+
+  #primary_color {
+    background-color: rgb(0, 0, 0) !important;
+    border: 1px solid rgb(108, 108, 108);
+    color: #ffffff;
+  }
+
+  #secondary_color {
+    background-color: rgb(0, 0, 0) !important;
     border: 1px solid rgb(108, 108, 108);
     color: #ffffff;
   }
