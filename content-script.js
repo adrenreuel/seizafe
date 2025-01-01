@@ -10,6 +10,22 @@ const settings = {
   flashFrequency: 60,
   movingAverage: 5,
 };
+// Initialize variables
+// Initialize data storage
+const dataPoints = {
+  r: [],
+  g: [],
+  b: [],
+  luminosity: [],
+};
+const maxValue = {
+  r: 1,
+  g: 1,
+  b: 1,
+  luminosity: 1,
+};
+let graphOffsetX = 0; // Offset for scrolling effect
+const maxPoints = 50; // Maximum number of data points displayed
 
 // execute seizafe
 seizafeScript();
@@ -184,10 +200,11 @@ function seizafeScript() {
 }
 
 function drawSeizafeCanvas() {
+  // SEIZAFE DEBUG CANVAS
   let seizafeDiv = document.getElementById("seizafe-debug-container");
 
   if (seizafeDiv) {
-    seizafeDiv.remove(); // Remove the entire debug div if it exists
+    seizafeDiv.remove(); // Remove the entire debug div
   } else {
     // Create the div container if it doesn't exist
     seizafeDiv = document.createElement("div");
@@ -211,79 +228,212 @@ function drawSeizafeCanvas() {
     debugText.style.fontWeight = "bold";
     seizafeDiv.appendChild(debugText);
 
-    // Create the canvas inside the div for the moving graph
+    // Create the canvas inside the div
     const canvas = document.createElement("canvas");
     canvas.id = "seizafe-frame-canvas"; // Assign an ID for future checks
     seizafeDiv.appendChild(canvas);
 
-    const ctx = canvas.getContext("2d");
-    let dataPoints = []; // Store the data points for the graph
-    const maxPoints = 100; // Number of data points to display at once
-    const graphHeight = 100; // Height of the graph area
-    const graphWidth = 500; // Width of the graph area
-    let graphOffsetX = 0; // To move the graph as time progresses
+    // Create graph canvas inside the div
+    const graphCanvas = document.createElement("canvas");
+    graphCanvas.id = "seizafe-graph-canvas"; // Assign an ID for future checks
+    seizafeDiv.appendChild(graphCanvas);
+    graphCanvas.width = 200;
+    graphCanvas.height = 100;
+    graphCanvas.style.backgroundColor = "#1d1d1db8";
+    graphCanvas.style.borderRadius = "5px";
 
-    // Set canvas size
-    canvas.width = graphWidth;
-    canvas.height = graphHeight;
+    // Get the video dimensions and calculate the aspect ratio
+    var aspectRatio = video.videoWidth / video.videoHeight;
 
-    // Function to draw the graph
-    function drawGraph() {
-      // Clear the canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Set the minimum dimensions
+    var minWidth = 200;
+    var minHeight = 100;
 
-      // Draw the grid and axes (optional)
-      ctx.strokeStyle = "#ccc";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, graphHeight);
-      ctx.lineTo(graphWidth, graphHeight); // X-axis
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, graphHeight); // Y-axis
-      ctx.stroke();
-
-      // Draw the data points as a line graph
-      ctx.strokeStyle = "#ff6600"; // Graph line color
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-
-      // Iterate over the dataPoints array and plot the points
-      dataPoints.forEach((point, index) => {
-        const x = (graphOffsetX + index) % graphWidth; // Scroll the graph horizontally
-        const y = graphHeight - point.value; // Invert Y-axis to fit the canvas
-        if (index === 0) {
-          ctx.moveTo(x, y); // Start the line at the first point
-        } else {
-          ctx.lineTo(x, y); // Draw lines between points
-        }
-      });
-      ctx.stroke();
+    // Determine the new canvas size based on the aspect ratio
+    if (aspectRatio > 1) {
+      // Landscape video
+      canvas.width = Math.max(video.videoWidth / 10, minWidth);
+      canvas.height = canvas.width / aspectRatio; // Maintain aspect ratio
+    } else {
+      // Portrait or square video
+      canvas.height = Math.max(video.videoHeight / 10, minHeight);
+      canvas.width = canvas.height * aspectRatio; // Maintain aspect ratio
     }
 
-    // Function to add new data point (you can change this based on the data you are processing)
-    function updateGraph(seizafeAnalysis) {
-      // Push the new data (e.g., avgRed, avgGreen, avgBlue)
-      const seizureData = seizafeAnalysis; // Can be any numeric value like seizure risk level
-      dataPoints.push({ value: seizureData });
+    // Ensure minimum height is not less than 50px
+    if (canvas.height < minHeight) {
+      canvas.height = minHeight;
+      canvas.width = minHeight * aspectRatio; // Adjust width to maintain aspect ratio
+    }
 
-      // Limit the number of data points to maxPoints
-      if (dataPoints.length > maxPoints) {
-        dataPoints.shift(); // Remove the oldest point
+    // Ensure minimum width is not less than 100px
+    if (canvas.width < minWidth) {
+      canvas.width = minWidth;
+      canvas.height = minWidth / aspectRatio; // Adjust height to maintain aspect ratio
+    }
+
+    seizafeDiv.style.width = canvas.width + "px";
+    var ctx = canvas.getContext("2d");
+
+    // Draw video frame to canvas
+    function drawFrame() {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Get the image data from the canvas
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data; // This is a flat array of all pixel data [r, g, b, a, r, g, b, a, ...]
+
+      let totalRed = 0;
+      let totalGreen = 0;
+      let totalBlue = 0;
+      let totalPixels = 0;
+
+      // Loop through every pixel (r, g, b, a) in the data array
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i]; // Red value
+        const g = data[i + 1]; // Green value
+        const b = data[i + 2]; // Blue value
+
+        // Sum up the red, green, and blue values
+        totalRed += r;
+        totalGreen += g;
+        totalBlue += b;
+
+        totalPixels++; // Count the number of pixels
       }
 
-      graphOffsetX += 5; // Move the graph to the right as time progresses
+      // Calculate the average values for red, green, and blue
+      const avgRed = parseFloat((totalRed / totalPixels).toFixed(2));
+      const avgGreen = parseFloat((totalGreen / totalPixels).toFixed(2));
+      const avgBlue = parseFloat((totalBlue / totalPixels).toFixed(2));
 
-      // Draw the graph with updated data
-      drawGraph();
+      // Pass the average RGB values to the Seizafe class's processFrame method
+      const seizafeAnalysis = seizafeInstance.processFrame(
+        avgRed,
+        avgGreen,
+        avgBlue
+      );
+
+      updateGraph(graphCanvas, seizafeAnalysis); // Update the graph with the new data point
+      console.log(seizafeAnalysis);
     }
 
-    // Simulate receiving new data from seizafeAnalysis (replace with your actual analysis data)
-    setInterval(() => {
-      // Assuming seizafeAnalysis returns a numeric value for seizure risk level
-      const seizafeAnalysis = Math.random() * graphHeight; // Random value for demonstration
-      updateGraph(seizafeAnalysis); // Update the graph with new data
-    }, 100); // Update every 100ms (adjust as needed)
+    // Make the entire div moveable
+    let isDragging = false;
+    let offset = { x: 0, y: 0 };
+
+    seizafeDiv.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      offset.x = e.offsetX;
+      offset.y = e.offsetY;
+      seizafeDiv.style.cursor = "grabbing"; // Change cursor while dragging
+      document.body.style.userSelect = "none"; // Prevent text selection
+    });
+
+    document.addEventListener("mouseup", function () {
+      isDragging = false;
+      seizafeDiv.style.cursor = "grab"; // Revert cursor when not dragging
+      document.body.style.userSelect = ""; // Re-enable text selection
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (isDragging) {
+        // Calculate new position and move the entire div
+        seizafeDiv.style.top = e.clientY - offset.y + "px";
+        seizafeDiv.style.left = e.clientX - offset.x + "px";
+      }
+    });
+
+    // Draw frame every 50ms (Customizable)
+    seizafeIntervalId = setInterval(drawFrame, 50);
   }
+}
+
+// Function to draw the graph
+function drawGraph(graphCanvas) {
+  const ctx = graphCanvas.getContext("2d");
+
+  // Clear the canvas
+  ctx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
+  // Draw the grid and axes
+  ctx.strokeStyle = "#313131"; // Light gray for grid lines
+  ctx.lineWidth = 1;
+
+  // Horizontal grid lines
+  for (let i = 0; i <= graphCanvas.height; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(graphCanvas.width, i);
+    ctx.stroke();
+  }
+
+  // Vertical grid lines
+  for (let i = 0; i <= graphCanvas.width; i += 20) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, graphCanvas.height);
+    ctx.stroke();
+  }
+
+  // Define colors for each data line
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffffff"]; // Red, Green, Blue, Orange
+
+  // Draw each data set
+  ["r", "g", "b", "luminosity"].forEach((key, dataIndex) => {
+    ctx.strokeStyle = colors[dataIndex];
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    dataPoints[key].forEach((point, index) => {
+      // Calculate X position with scrolling effect
+      const x =
+        (graphOffsetX + index * (graphCanvas.width / maxPoints)) %
+        graphCanvas.width;
+
+      // Normalize Y position based on max value
+      const y =
+        graphCanvas.height - (point / maxValue[key]) * graphCanvas.height;
+
+      if (index === 0) {
+        ctx.moveTo(x, y); // Start the line at the first point
+      } else {
+        ctx.lineTo(x, y); // Draw lines between points
+      }
+    });
+    ctx.stroke(); // Render the graph line
+  });
+}
+
+// Function to add new data point and redraw the graph
+function updateGraph(graphCanvas, seizafeAnalysis) {
+  // Extract data point values
+  const values = {
+    r: seizafeAnalysis.r || 0,
+    g: seizafeAnalysis.g || 0,
+    b: seizafeAnalysis.b || 0,
+    luminosity: seizafeAnalysis.luminosity || 0,
+  };
+
+  // Update maxValue dynamically for scaling
+  Object.keys(values).forEach((key) => {
+    if (values[key] > maxValue[key]) {
+      maxValue[key] = values[key];
+    }
+
+    // Add new data point
+    dataPoints[key].push(values[key]);
+
+    // Limit the number of data points to maxPoints
+    if (dataPoints[key].length > maxPoints) {
+      dataPoints[key].shift(); // Remove the oldest point
+    }
+  });
+
+  graphOffsetX += graphCanvas.width / maxPoints; // Increment offset for scrolling effect
+
+  // Redraw the graph with updated data
+  drawGraph(graphCanvas);
 }
 
 // Unmount function to remove the canvas and stop the interval
