@@ -25,7 +25,7 @@ const maxValue = {
   luminosity: 1,
 };
 let graphOffsetX = 0; // Offset for scrolling effect
-const maxPoints = 50; // Maximum number of data points displayed
+const maxPoints = 100; // Maximum number of data points displayed
 
 // execute seizafe
 seizafeScript();
@@ -222,7 +222,7 @@ function drawSeizafeCanvas() {
 
     // Add the Seizafe debug text
     const debugText = document.createElement("p");
-    debugText.innerText = "SEIZAFE - DEBUG MODE";
+    debugText.innerText = "SEIZAFE - DEBUG PANEL";
     debugText.style.color = "#ffffff";
     debugText.style.margin = "0";
     debugText.style.fontWeight = "bold";
@@ -344,8 +344,23 @@ function drawSeizafeCanvas() {
       }
     });
 
+    startDrawing();
+
     // Draw frame every 50ms (Customizable)
-    seizafeIntervalId = setInterval(drawFrame, 50);
+    function startDrawing() {
+      seizafeIntervalId = setInterval(drawFrame, 50);
+    }
+
+    function stopDrawing() {
+      clearInterval(seizafeIntervalId);
+    }
+
+    // Check if video is playing or paused and start/stop drawing accordingly
+    video.addEventListener("play", startDrawing);
+    video.addEventListener("pause", stopDrawing);
+    video.addEventListener("ended", stopDrawing);
+
+    // Add checker for video scrubbing?
   }
 }
 
@@ -377,7 +392,7 @@ function drawGraph(graphCanvas) {
   }
 
   // Define colors for each data line
-  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffffff"]; // Red, Green, Blue, Orange
+  const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffffff"]; // Red, Green, Blue, White
 
   // Draw each data set
   ["r", "g", "b", "luminosity"].forEach((key, dataIndex) => {
@@ -386,10 +401,8 @@ function drawGraph(graphCanvas) {
     ctx.beginPath();
 
     dataPoints[key].forEach((point, index) => {
-      // Calculate X position with scrolling effect
-      const x =
-        (graphOffsetX + index * (graphCanvas.width / maxPoints)) %
-        graphCanvas.width;
+      // Calculate X position
+      const x = index * (graphCanvas.width / maxPoints);
 
       // Normalize Y position based on max value
       const y =
@@ -430,7 +443,14 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
     }
   });
 
-  graphOffsetX += graphCanvas.width / maxPoints; // Increment offset for scrolling effect
+  // Reset graphOffsetX and clear graph when reaching the end
+  if (dataPoints.r.length >= maxPoints) {
+    graphOffsetX = 0;
+    dataPoints.r = [];
+    dataPoints.g = [];
+    dataPoints.b = [];
+    dataPoints.luminosity = [];
+  }
 
   // Redraw the graph with updated data
   drawGraph(graphCanvas);
