@@ -10,22 +10,40 @@ const settings = {
   flashFrequency: 60,
   movingAverage: 5,
 };
+
 // Initialize variables
-// Initialize data storage
 const dataPoints = {
   r: [],
   g: [],
   b: [],
   luminosity: [],
 };
-const maxValue = {
-  r: 1,
-  g: 1,
-  b: 1,
-  luminosity: 1,
+
+// Initialize peak and crest values
+const peakValues = {
+  r: 0,
+  g: 0,
+  b: 0,
+  luminosity: 0,
 };
+
+const crestValues = {
+  r: 0,
+  g: 0,
+  b: 0,
+  luminosity: 0,
+};
+
 let graphOffsetX = 0; // Offset for scrolling effect
 const maxPoints = 100; // Maximum number of data points displayed
+
+// Function to add new data point and redraw the graph
+let flashCount = 0;
+let flashThreshold = 3; // Default number of flashes before alert
+const spikeThreshold = 200; // Adjust this threshold for spike detection
+let spikeIndices = { r: [], g: [], b: [], luminosity: [] };
+let flashTimestamps = [];
+const flashTimeWindow = 5000;
 
 // execute seizafe
 seizafeScript();
@@ -348,7 +366,7 @@ function drawSeizafeCanvas() {
 
     // Draw frame every 50ms (Customizable)
     function startDrawing() {
-      seizafeIntervalId = setInterval(drawFrame, 50);
+      seizafeIntervalId = setInterval(drawFrame, flashTimeWindow / maxPoints);
     }
 
     function stopDrawing() {
@@ -361,6 +379,8 @@ function drawSeizafeCanvas() {
     video.addEventListener("ended", stopDrawing);
 
     // Add checker for video scrubbing?
+
+    // Pause video if strobe detected
   }
 }
 
@@ -391,6 +411,21 @@ function drawGraph(graphCanvas) {
     ctx.stroke();
   }
 
+  // Add axis labels
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "10px Arial";
+  ctx.textAlign = "center";
+
+  // X-axis label
+  ctx.fillText("Time", graphCanvas.width / 2, graphCanvas.height - 5);
+
+  // Y-axis label (rotated)
+  ctx.save();
+  ctx.translate(10, graphCanvas.height / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText("Intensity", 0, 0);
+  ctx.restore();
+
   // Define colors for each data line
   const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffffff"]; // Red, Green, Blue, White
 
@@ -404,9 +439,8 @@ function drawGraph(graphCanvas) {
       // Calculate X position
       const x = index * (graphCanvas.width / maxPoints);
 
-      // Normalize Y position based on max value
-      const y =
-        graphCanvas.height - (point / maxValue[key]) * graphCanvas.height;
+      // Normalize Y position based on fixed max value of 255
+      const y = graphCanvas.height - (point / 255) * graphCanvas.height;
 
       if (index === 0) {
         ctx.moveTo(x, y); // Start the line at the first point
@@ -416,10 +450,32 @@ function drawGraph(graphCanvas) {
     });
     ctx.stroke(); // Render the graph line
   });
+
+  // Draw unfilled circles for detected spikes
+  Object.keys(spikeIndices).forEach((key, dataIndex) => {
+    ctx.strokeStyle = "#ffff00"; // Yellow color for spikes
+    ctx.lineWidth = 1;
+    spikeIndices[key].forEach((index) => {
+      const x = index * (graphCanvas.width / maxPoints);
+      const y =
+        graphCanvas.height -
+        (dataPoints[key][index] / 255) * graphCanvas.height;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, 2 * Math.PI);
+      ctx.stroke(); // Draw unfilled circle
+    });
+  });
 }
 
 // Function to add new data point and redraw the graph
 function updateGraph(graphCanvas, seizafeAnalysis) {
+  const currentTime = Date.now();
+
+  // Remove outdated timestamps
+  flashTimestamps = flashTimestamps.filter(
+    (t) => currentTime - t <= flashTimeWindow
+  );
+
   // Extract data point values
   const values = {
     r: seizafeAnalysis.r || 0,
@@ -428,20 +484,33 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
     luminosity: seizafeAnalysis.luminosity || 0,
   };
 
-  // Update maxValue dynamically for scaling
+  // Check for spikes in data
+  let spikeDetected = false;
   Object.keys(values).forEach((key) => {
-    if (values[key] > maxValue[key]) {
-      maxValue[key] = values[key];
+    if (values[key] > spikeThreshold) {
+      spikeDetected = true;
+      spikeIndices[key].push(dataPoints[key].length);
     }
 
-    // Add new data point
     dataPoints[key].push(values[key]);
 
     // Limit the number of data points to maxPoints
     if (dataPoints[key].length > maxPoints) {
       dataPoints[key].shift(); // Remove the oldest point
+      spikeIndices[key] = spikeIndices[key]
+        .map((i) => i - 1)
+        .filter((i) => i >= 0);
     }
   });
+
+  // Increment flash count if a spike is detected
+  if (spikeDetected) {
+    flashTimestamps.push(currentTime);
+    if (flashTimestamps.length >= flashThreshold) {
+      // alert("Warning: High-intensity flashes detected!");
+      flashTimestamps = []; // Reset timestamps after alert
+    }
+  }
 
   // Reset graphOffsetX and clear graph when reaching the end
   if (dataPoints.r.length >= maxPoints) {
@@ -450,6 +519,7 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
     dataPoints.g = [];
     dataPoints.b = [];
     dataPoints.luminosity = [];
+    spikeIndices = { r: [], g: [], b: [], luminosity: [] };
   }
 
   // Redraw the graph with updated data
