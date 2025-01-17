@@ -36,13 +36,6 @@ const crestValues = {
 
 let graphOffsetX = 0; // Offset for scrolling effect
 const maxPoints = 100; // Maximum number of data points displayed
-
-// Function to add new data point and redraw the graph
-let flashCount = 0;
-let flashThreshold = 3; // Default number of flashes before alert
-const spikeThreshold = 200; // Adjust this threshold for spike detection
-let spikeIndices = { r: [], g: [], b: [], luminosity: [] };
-let flashTimestamps = [];
 const flashTimeWindow = 5000;
 
 // execute seizafe
@@ -119,7 +112,7 @@ function seizafeScript() {
 
     chrome.storage.sync.get(["seizafestate"], function (result) {
       if (result.seizafestate) {
-        video.style.border = "5px solid #6600ff";
+        // video.style.border = "5px solid #6600ff";
       } else {
         video.style.border = "none";
       }
@@ -195,7 +188,7 @@ function seizafeScript() {
 
     chrome.storage.sync.get(["seizafestate"], function (result) {
       if (result.seizafestate) {
-        video.style.border = "5px solid #6600ff";
+        // video.style.border = "5px solid #6600ff";
       } else {
         video.style.border = "none";
       }
@@ -237,6 +230,56 @@ function drawSeizafeCanvas() {
     seizafeDiv.style.padding = "10px";
     seizafeDiv.style.borderRadius = "5px";
     document.body.appendChild(seizafeDiv);
+
+    // Make the entire div moveable
+    let isDragging = false;
+    let offset = { x: 0, y: 0 };
+
+    // Ensure the div sticks to the edges of the window
+    function keepInBounds() {
+      const rect = seizafeDiv.getBoundingClientRect();
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      if (rect.top < 0) seizafeDiv.style.top = "0px";
+      if (rect.left < 0) seizafeDiv.style.left = "0px";
+      if (rect.right > windowWidth)
+        seizafeDiv.style.left = windowWidth - rect.width - 20 + "px";
+      if (rect.bottom > windowHeight)
+        seizafeDiv.style.top = windowHeight - rect.height + "px";
+    }
+
+    // Make the div draggable
+    seizafeDiv.addEventListener("mousedown", function (e) {
+      isDragging = true;
+      offset.x = e.offsetX;
+      offset.y = e.offsetY;
+      seizafeDiv.style.cursor = "grabbing"; // Change cursor while dragging
+      document.body.style.userSelect = "none"; // Prevent text selection
+    });
+
+    document.addEventListener("mouseup", function () {
+      if (isDragging) {
+        isDragging = false;
+        seizafeDiv.style.cursor = "grab"; // Revert cursor when not dragging
+        document.body.style.userSelect = ""; // Re-enable text selection
+        keepInBounds(); // Adjust position after dragging ends
+      }
+    });
+
+    document.addEventListener("mousemove", function (e) {
+      if (isDragging) {
+        // Calculate new position and move the div
+        seizafeDiv.style.top = e.clientY - offset.y + "px";
+        seizafeDiv.style.left = e.clientX - offset.x + "px";
+      }
+    });
+
+    // Adjust position on window resize to keep the div within bounds
+    window.addEventListener("resize", keepInBounds);
+
+    // Initial check to ensure the div starts within bounds
+    keepInBounds();
 
     // Add the Seizafe debug text
     const debugText = document.createElement("p");
@@ -336,32 +379,6 @@ function drawSeizafeCanvas() {
       console.log(seizafeAnalysis);
     }
 
-    // Make the entire div moveable
-    let isDragging = false;
-    let offset = { x: 0, y: 0 };
-
-    seizafeDiv.addEventListener("mousedown", function (e) {
-      isDragging = true;
-      offset.x = e.offsetX;
-      offset.y = e.offsetY;
-      seizafeDiv.style.cursor = "grabbing"; // Change cursor while dragging
-      document.body.style.userSelect = "none"; // Prevent text selection
-    });
-
-    document.addEventListener("mouseup", function () {
-      isDragging = false;
-      seizafeDiv.style.cursor = "grab"; // Revert cursor when not dragging
-      document.body.style.userSelect = ""; // Re-enable text selection
-    });
-
-    document.addEventListener("mousemove", function (e) {
-      if (isDragging) {
-        // Calculate new position and move the entire div
-        seizafeDiv.style.top = e.clientY - offset.y + "px";
-        seizafeDiv.style.left = e.clientX - offset.x + "px";
-      }
-    });
-
     startDrawing();
 
     // Draw frame every 50ms (Customizable)
@@ -450,31 +467,11 @@ function drawGraph(graphCanvas) {
     });
     ctx.stroke(); // Render the graph line
   });
-
-  // Draw unfilled circles for detected spikes
-  Object.keys(spikeIndices).forEach((key, dataIndex) => {
-    ctx.strokeStyle = "#ffff00"; // Yellow color for spikes
-    ctx.lineWidth = 1;
-    spikeIndices[key].forEach((index) => {
-      const x = index * (graphCanvas.width / maxPoints);
-      const y =
-        graphCanvas.height -
-        (dataPoints[key][index] / 255) * graphCanvas.height;
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, 2 * Math.PI);
-      ctx.stroke(); // Draw unfilled circle
-    });
-  });
 }
 
 // Function to add new data point and redraw the graph
 function updateGraph(graphCanvas, seizafeAnalysis) {
   const currentTime = Date.now();
-
-  // Remove outdated timestamps
-  flashTimestamps = flashTimestamps.filter(
-    (t) => currentTime - t <= flashTimeWindow
-  );
 
   // Extract data point values
   const values = {
@@ -484,33 +481,14 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
     luminosity: seizafeAnalysis.luminosity || 0,
   };
 
-  // Check for spikes in data
-  let spikeDetected = false;
   Object.keys(values).forEach((key) => {
-    if (values[key] > spikeThreshold) {
-      spikeDetected = true;
-      spikeIndices[key].push(dataPoints[key].length);
-    }
-
     dataPoints[key].push(values[key]);
 
     // Limit the number of data points to maxPoints
     if (dataPoints[key].length > maxPoints) {
       dataPoints[key].shift(); // Remove the oldest point
-      spikeIndices[key] = spikeIndices[key]
-        .map((i) => i - 1)
-        .filter((i) => i >= 0);
     }
   });
-
-  // Increment flash count if a spike is detected
-  if (spikeDetected) {
-    flashTimestamps.push(currentTime);
-    if (flashTimestamps.length >= flashThreshold) {
-      // alert("Warning: High-intensity flashes detected!");
-      flashTimestamps = []; // Reset timestamps after alert
-    }
-  }
 
   // Reset graphOffsetX and clear graph when reaching the end
   if (dataPoints.r.length >= maxPoints) {
@@ -519,7 +497,6 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
     dataPoints.g = [];
     dataPoints.b = [];
     dataPoints.luminosity = [];
-    spikeIndices = { r: [], g: [], b: [], luminosity: [] };
   }
 
   // Redraw the graph with updated data
