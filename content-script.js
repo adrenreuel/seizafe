@@ -1,6 +1,8 @@
 var windowURL = window.location.toString();
 var video = null;
 var seizafeIntervalId = null;
+
+// Defaults
 const settings = {
   redLevels: 10,
   greenLevels: 20,
