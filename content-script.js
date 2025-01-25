@@ -379,6 +379,89 @@ function drawSeizafeCanvas() {
 
       updateGraph(graphCanvas, seizafeAnalysis); // Update the graph with the new data point
       console.log(seizafeAnalysis);
+
+      if (seizafeAnalysis.luminosity > 200) {
+        video.pause();
+        // Ensure the video container exists
+        const videoContainer = video.parentElement || video;
+
+        // Create warning overlay
+        let warningDiv = document.createElement("div");
+        warningDiv.id = "warning-overlay";
+        warningDiv.style.position = "absolute";
+        warningDiv.style.top = "0";
+        warningDiv.style.left = "0";
+        warningDiv.style.width = "100%";
+        warningDiv.style.height = "100%";
+        // warningDiv.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+        warningDiv.style.background = `linear-gradient(
+          0deg ,
+          rgba(123, 0, 255, 0.9) 33%,
+          rgba(70, 14, 72, 1) 100%
+        )`;
+        warningDiv.style.zIndex = "9999";
+        warningDiv.style.display = "flex";
+        warningDiv.style.flexDirection = "column";
+        warningDiv.style.justifyContent = "center";
+        warningDiv.style.alignItems = "center";
+        warningDiv.style.color = "#ffffff";
+        warningDiv.style.textAlign = "center";
+
+        // Create logo
+        let warningLogo = document.createElement("img");
+        warningLogo.src = chrome.runtime.getURL("seizafe_eye.png");
+        warningLogo.style.fontSize = "36px";
+        warningLogo.style.marginBottom = "10px";
+        warningDiv.appendChild(warningLogo);
+
+        // Create title
+        let warningTitle = document.createElement("h1");
+        warningTitle.innerText = "Seizure Warning!";
+        warningTitle.style.fontSize = "36px";
+        warningTitle.style.marginBottom = "10px";
+        warningDiv.appendChild(warningTitle);
+
+        // Create warning message
+        let warningMessage = document.createElement("span");
+        warningMessage.innerText =
+          "The following content may potentially trigger seizures.";
+        warningMessage.style.fontSize = "18px";
+        warningMessage.style.maxWidth = "80%";
+        warningMessage.style.lineHeight = "1.5";
+        warningDiv.appendChild(warningMessage);
+
+        // Create close message
+        let closeMessage = document.createElement("span");
+        closeMessage.innerText = "Click here or hit [space] to dismiss";
+        closeMessage.style.fontSize = "14px";
+        closeMessage.style.marginTop = "20px";
+        warningDiv.appendChild(closeMessage);
+
+        // Function to remove overlay and resume video
+        const removeOverlay = () => {
+          warningDiv.remove();
+          video.play();
+        };
+
+        // Add click event to remove overlay and resume video
+        warningDiv.addEventListener("click", removeOverlay);
+
+        // Add keydown event to remove overlay and resume video when space bar is pressed
+        document.addEventListener(
+          "keydown",
+          (event) => {
+            if (event.code === "Space") {
+              removeOverlay();
+            }
+          },
+          { once: true }
+        );
+
+        // Prepend overlay to the video container's parent
+        const parentContainer = videoContainer.parentElement;
+        parentContainer.style.position = "relative"; // Ensure parent can position child elements
+        parentContainer.insertBefore(warningDiv, parentContainer.firstChild);
+      }
     }
 
     startDrawing();
