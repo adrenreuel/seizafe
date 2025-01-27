@@ -15,7 +15,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["assets/images/seizafe_eye.png"],
+        "resources": ["assets/seizafe_eye.png"],
         "matches": ["<all_urls>"]
       }
     ],

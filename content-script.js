@@ -215,6 +215,11 @@ function seizafeScript() {
 function drawSeizafeCanvas() {
   // SEIZAFE DEBUG CANVAS
   let seizafeDiv = document.getElementById("seizafe-debug-container");
+  // let warningDiv = document.getElementById("warning-overlay");
+
+  // if (warningDiv) {
+  //   warningDiv.remove();
+  // }
 
   if (seizafeDiv) {
     seizafeDiv.remove(); // Remove the entire debug div
@@ -409,7 +414,8 @@ function drawSeizafeCanvas() {
 
         // Create logo
         let warningLogo = document.createElement("img");
-        warningLogo.src = chrome.runtime.getURL("seizafe_eye.png");
+        warningLogo.src = chrome.runtime.getURL("assets/seizafe_eye.png");
+        warningLogo.style.width = "100px";
         warningLogo.style.fontSize = "36px";
         warningLogo.style.marginBottom = "10px";
         warningDiv.appendChild(warningLogo);
