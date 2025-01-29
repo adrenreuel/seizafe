@@ -138,8 +138,8 @@ function updateWarningOverlay() {
   var customWarningOverlay = document.getElementById("customWarningOverlay");
   customWarningOverlay.style.background = `linear-gradient(
       0deg, 
-      ${hexToRgba(primaryColor, 0.8)} 33%,
-      ${hexToRgba(secondaryColor, 0.2)} 100%
+      ${hexToRgba(primaryColor, 9)} 33%,
+      ${hexToRgba(secondaryColor, 0.9)} 100%
     )`;
 }
 

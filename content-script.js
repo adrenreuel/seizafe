@@ -290,7 +290,7 @@ function drawSeizafeCanvas() {
 
     // Add the Seizafe debug text
     const debugText = document.createElement("p");
-    debugText.innerText = "SEIZAFE - DEBUG PANEL";
+    debugText.innerText = "Seizafe Spectral Graph";
     debugText.style.color = "#ffffff";
     debugText.style.margin = "0";
     debugText.style.fontWeight = "bold";
@@ -385,103 +385,176 @@ function drawSeizafeCanvas() {
       updateGraph(graphCanvas, seizafeAnalysis); // Update the graph with the new data point
       console.log(seizafeAnalysis);
 
-      if (seizafeAnalysis.luminosity > 200) {
-        video.pause();
+      // Function to inject styles once
+      function injectStyles() {
+        if (!document.getElementById("seizafe-font")) {
+          const fontLink = document.createElement("link");
+          fontLink.id = "seizafe-font";
+          fontLink.href =
+            "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
+          fontLink.rel = "stylesheet";
+          document.head.appendChild(fontLink);
+        }
+
+        if (!document.getElementById("seizafe-style")) {
+          // Default colors
+          let primaryColor = "#6600ff";
+          let secondaryColor = "#bb00ff";
+
+          // Fetch custom warning colors from storage asynchronously
+          chrome.storage.sync.get(["customWarning"], function (result) {
+            if (result.customWarning) {
+              // Set to custom primary and secondary colors if available
+              primaryColor = result.customWarning.primaryColor;
+              secondaryColor = result.customWarning.secondaryColor;
+            }
+            // After colors are fetched, inject the styles
+            injectWarningStyle(primaryColor, secondaryColor);
+          });
+        }
+
+        // Function to inject the styles after fetching custom colors
+        function injectWarningStyle(primaryColor, secondaryColor) {
+          const warningStyle = document.createElement("style");
+          warningStyle.id = "seizafe-style";
+          warningStyle.textContent = `
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 0.9; } }
+            @keyframes fadeOut { from { opacity: 0.9; } to { opacity: 0; } }
+        
+            .seizafe-warning {
+              font-family: 'Montserrat', sans-serif !important;
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(0deg, ${primaryColor} 33%, ${secondaryColor} 100%);
+              z-index: 9999;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              color: #ffffff;
+              text-align: center;
+              opacity: 0;
+              animation: fadeIn 0.5s forwards;
+            }
+            .seizafe-warning.fade-out { animation: fadeOut 0.5s forwards; }
+        
+            .seizafe-checkbox-container {
+              display: flex;
+              align-items: center;
+              margin-top: 15px;
+            }
+            .seizafe-checkbox {
+              margin-right: 10px;
+              transform: scale(1.2);
+            }
+            .seizafe-options-link {
+              color: #FFD700;
+              text-decoration: underline;
+              margin-top: 10px;
+              font-size: 14px;
+              cursor: pointer;
+            }
+          `;
+          document.head.appendChild(warningStyle);
+        }
+      }
+
+      // Function to create the warning overlay
+      function showWarning(video) {
+        // Ensure styles are injected
+        injectStyles();
+
+        // Check if the user has already dismissed warnings for this video
+        const videoId = video.src || window.location.href;
+        if (localStorage.getItem(`seizafe_skip_${videoId}`)) {
+          return;
+        }
+
         // Ensure the video container exists
         const videoContainer = video.parentElement || video;
 
-        // Inject Google Font
-        const fontLink = document.createElement("link");
-        fontLink.href =
-          "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
-        fontLink.rel = "stylesheet";
-        document.head.appendChild(fontLink);
-
-        // Inject custom styles
-        const fontStyle = document.createElement("style");
-        fontStyle.textContent = `
-  #warning-overlay {
-    font-family: 'Montserrat', sans-serif !important;
-  }
-`;
-        document.head.appendChild(fontStyle);
-
-        // Create warning overlay
+        // Create overlay div
         let warningDiv = document.createElement("div");
-        warningDiv.id = "warning-overlay";
-        warningDiv.style.position = "absolute";
-        warningDiv.style.top = "0";
-        warningDiv.style.left = "0";
-        warningDiv.style.width = "100%";
-        warningDiv.style.height = "100%";
-        warningDiv.style.background = `linear-gradient(
-  0deg,
-  rgba(123, 0, 255, 0.9) 33%,
-  rgba(70, 14, 72, 1) 100%
-)`;
-        warningDiv.style.zIndex = "9999";
-        warningDiv.style.display = "flex";
-        warningDiv.style.flexDirection = "column";
-        warningDiv.style.justifyContent = "center";
-        warningDiv.style.alignItems = "center";
-        warningDiv.style.color = "#ffffff";
-        warningDiv.style.textAlign = "center";
+        warningDiv.classList.add("seizafe-warning");
 
-        // Create logo
-        let warningLogo = document.createElement("img");
-        warningLogo.src = chrome.runtime.getURL("assets/seizafe_eye.png");
-        warningLogo.style.width = "100px";
-        warningLogo.style.marginBottom = "10px";
-        warningDiv.appendChild(warningLogo);
+        // Add warning content
+        warningDiv.innerHTML = `
+    <img src="${chrome.runtime.getURL(
+      "assets/seizafe_eye.png"
+    )}" style="width: 100px; margin-bottom: 10px;" />
+    <h1 style="font-size: 36px; margin-bottom: 10px;">Seizure Warning!</h1>
+    <span style="font-size: 18px; max-width: 80%; line-height: 1.5;">
+      The following content may potentially trigger seizures.
+    </span>
+    
+    <div class="seizafe-checkbox-container">
+      <input type="checkbox" id="seizafe-dismiss-checkbox" class="seizafe-checkbox">
+      <label for="seizafe-dismiss-checkbox">Don't show this warning again for this video</label>
+    </div>
 
-        // Create title
-        let warningTitle = document.createElement("h1");
-        warningTitle.innerText = "Seizure Warning!";
-        warningTitle.style.fontSize = "36px";
-        warningTitle.style.marginBottom = "10px";
-        warningDiv.appendChild(warningTitle);
+    <span style="font-size: 14px; margin-top: 20px;">
+      Click here or hit [space] to dismiss
+    </span>
+  `;
 
-        // Create warning message
-        let warningMessage = document.createElement("span");
-        warningMessage.innerText =
-          "The following content may potentially trigger seizures.";
-        warningMessage.style.fontSize = "18px";
-        warningMessage.style.maxWidth = "80%";
-        warningMessage.style.lineHeight = "1.5";
-        warningDiv.appendChild(warningMessage);
+        // Ensure video container allows absolute positioning
+        const parentContainer = videoContainer.parentElement;
+        if (parentContainer) {
+          parentContainer.style.position = "relative";
+          parentContainer.insertBefore(warningDiv, parentContainer.firstChild);
+        } else {
+          document.body.appendChild(warningDiv);
+        }
 
-        // Create close message
-        let closeMessage = document.createElement("span");
-        closeMessage.innerText = "Click here or hit [space] to dismiss";
-        closeMessage.style.fontSize = "14px";
-        closeMessage.style.marginTop = "20px";
-        warningDiv.appendChild(closeMessage);
+        // Pause video
+        video.pause();
 
-        // Function to remove overlay and resume video
-        const removeOverlay = () => {
-          warningDiv.remove();
+        // Function to remove warning and resume video
+        function removeWarning() {
+          // If the checkbox is checked, store preference to skip warnings for this video
+          const checkbox = document.getElementById("seizafe-dismiss-checkbox");
+          if (checkbox && checkbox.checked) {
+            localStorage.setItem(`seizafe_skip_${videoId}`, "true");
+          }
+
+          warningDiv.classList.add("fade-out");
+          setTimeout(() => warningDiv.remove(), 500); // Remove after animation
           video.play();
-        };
+        }
 
-        // Add click event to remove overlay and resume video
-        warningDiv.addEventListener("click", removeOverlay);
-
-        // Add keydown event to remove overlay and resume video when space bar is pressed
+        // Event listeners for dismissing the warning
+        warningDiv.addEventListener("click", removeWarning);
         document.addEventListener(
           "keydown",
           (event) => {
-            if (event.code === "Space") {
-              removeOverlay();
+            if (event.key === " " || event.key === "Escape") {
+              removeWarning();
             }
           },
           { once: true }
         );
 
-        // Prepend overlay to the video container's parent
-        const parentContainer = videoContainer.parentElement;
-        parentContainer.style.position = "relative"; // Ensure parent can position child elements
-        parentContainer.insertBefore(warningDiv, parentContainer.firstChild);
+        // Prevent clicking the checkbox or label from dismissing the warning
+        const checkboxContainer = document.querySelector(
+          ".seizafe-checkbox-container"
+        );
+        checkboxContainer.addEventListener("click", (event) => {
+          event.stopPropagation(); // Prevents click from reaching warningDiv
+        });
       }
+
+      // Analyze video and show warning if necessary
+      function analyzeVideo(video, seizureAnalysis) {
+        if (seizureAnalysis.luminosity > 200) {
+          showWarning(video);
+        }
+      }
+
+      // Run analysis on video
+      analyzeVideo(video, seizafeAnalysis);
     }
 
     startDrawing();

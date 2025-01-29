@@ -169,14 +169,15 @@ highsensitivity.addEventListener("click", (event) => {
   seizafe_eye_open.src = "../assets/seizafe_eye_high.png";
   chrome.storage.sync.set({ currentsensitivity: 3 }, function () {
     currentsensitivity = 3;
-    animation.setSpeed(5);
+    animation.setSpeed(0.5);
   });
   updateOptionsLink(5);
 });
 
 function updateOptionsLink(setting) {
   if (setting == 1) {
-    optionslink.innerHTML = "<i class='fas fa-cog'></i> Customize Sensitivity";
+    optionslink.innerHTML =
+      "<i class='fas fa-cog'></i> Customize Sensitivity HERE!";
   } else {
     optionslink.innerHTML = "<i class='fas fa-cog'></i> More Options";
   }
