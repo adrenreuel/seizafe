@@ -390,6 +390,22 @@ function drawSeizafeCanvas() {
         // Ensure the video container exists
         const videoContainer = video.parentElement || video;
 
+        // Inject Google Font
+        const fontLink = document.createElement("link");
+        fontLink.href =
+          "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
+        fontLink.rel = "stylesheet";
+        document.head.appendChild(fontLink);
+
+        // Inject custom styles
+        const fontStyle = document.createElement("style");
+        fontStyle.textContent = `
+  #warning-overlay {
+    font-family: 'Montserrat', sans-serif !important;
+  }
+`;
+        document.head.appendChild(fontStyle);
+
         // Create warning overlay
         let warningDiv = document.createElement("div");
         warningDiv.id = "warning-overlay";
@@ -398,12 +414,11 @@ function drawSeizafeCanvas() {
         warningDiv.style.left = "0";
         warningDiv.style.width = "100%";
         warningDiv.style.height = "100%";
-        // warningDiv.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
         warningDiv.style.background = `linear-gradient(
-          0deg ,
-          rgba(123, 0, 255, 0.9) 33%,
-          rgba(70, 14, 72, 1) 100%
-        )`;
+  0deg,
+  rgba(123, 0, 255, 0.9) 33%,
+  rgba(70, 14, 72, 1) 100%
+)`;
         warningDiv.style.zIndex = "9999";
         warningDiv.style.display = "flex";
         warningDiv.style.flexDirection = "column";
@@ -416,7 +431,6 @@ function drawSeizafeCanvas() {
         let warningLogo = document.createElement("img");
         warningLogo.src = chrome.runtime.getURL("assets/seizafe_eye.png");
         warningLogo.style.width = "100px";
-        warningLogo.style.fontSize = "36px";
         warningLogo.style.marginBottom = "10px";
         warningDiv.appendChild(warningLogo);
 
