@@ -288,7 +288,7 @@ function drawSeizafeCanvas() {
     // Initial check to ensure the div starts within bounds
     keepInBounds();
 
-    // Add the Seizafe debug text
+    // Add the Seizafe debug title
     const debugText = document.createElement("p");
     debugText.innerText = "Seizafe Spectral Graph";
     debugText.style.color = "#ffffff";
