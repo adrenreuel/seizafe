@@ -41,30 +41,30 @@ const maxPoints = 100; // Maximum number of data points displayed
 const flashTimeWindow = 5000;
 
 // execute seizafe
-seizafeScript();
+seizafeSiteRouter();
 const seizafeInstance = new Seizafe(settings);
 
 // listen for messages sent from background.js then call seizafe script
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
     // windowURL = request.url;
-    seizafeScript();
+    seizafeSiteRouter();
   }
 
   if (request.message === "tabchanged") {
-    seizafeScript();
+    seizafeSiteRouter();
   }
 
   if (request.message === "seizafeon") {
-    // seizafeScript();
+    // seizafeSiteRouter();
     // alert("seizafeon");
   } else if (request.message === "seizafeoff") {
-    // seizafeScript();
+    // seizafeSiteRouter();
     // alert("seizafeoff");
   }
 });
 
-function seizafeScript() {
+function seizafeSiteRouter() {
   //YOUTUBE
   if (windowURL.includes("youtube.com/watch")) {
     // Function to extract video details
@@ -72,22 +72,33 @@ function seizafeScript() {
       var videoID = windowURL.split("v=")[1].split("&")[0];
       var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
 
-      var videoTitle = document.querySelector(
-        "#above-the-fold h1.style-scope.ytd-watch-metadata"
-      );
-      var channelName = document.querySelector("#channel-name");
-
       chrome.storage.local.set({ platformURL: "youtube.com" });
       chrome.storage.local.set({ videoURL: windowURL });
       chrome.storage.local.set({ thumbnail: videoThumbnail });
 
-      if (videoTitle) {
-        chrome.storage.local.set({ videoTitle: videoTitle.innerText });
-      }
+      const observer = new MutationObserver((mutations, obs) => {
+        const videoTitle = document.querySelector(
+          "#above-the-fold h1.style-scope.ytd-watch-metadata"
+        );
+        const channelName = document.querySelector("#channel-name");
 
-      if (channelName) {
-        chrome.storage.local.set({ channelName: channelName.innerText });
-      }
+        if (videoTitle) {
+          chrome.storage.local.set({ videoTitle: videoTitle.innerText });
+        }
+
+        if (channelName) {
+          chrome.storage.local.set({ channelName: channelName.innerText });
+        }
+
+        // Stop observing once both elements are found
+        if (videoTitle && channelName) {
+          obs.disconnect();
+        }
+      });
+
+      // Observe changes in the body (or a more specific parent element if known)
+      observer.observe(document.body, { childList: true, subtree: true });
+
       // drawSeizafeCanvas();
     }
 
@@ -385,171 +396,10 @@ function drawSeizafeCanvas() {
       updateGraph(graphCanvas, seizafeAnalysis); // Update the graph with the new data point
       console.log(seizafeAnalysis);
 
-      // Function to inject styles once
-      function injectStyles() {
-        if (!document.getElementById("seizafe-font")) {
-          const fontLink = document.createElement("link");
-          fontLink.id = "seizafe-font";
-          fontLink.href =
-            "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
-          fontLink.rel = "stylesheet";
-          document.head.appendChild(fontLink);
-        }
-
-        if (!document.getElementById("seizafe-style")) {
-          // Default colors
-          let primaryColor = "#6600ff";
-          let secondaryColor = "#bb00ff";
-
-          // Fetch custom warning colors from storage asynchronously
-          chrome.storage.sync.get(["customWarning"], function (result) {
-            if (result.customWarning) {
-              // Set to custom primary and secondary colors if available
-              primaryColor = result.customWarning.primaryColor;
-              secondaryColor = result.customWarning.secondaryColor;
-            }
-            // After colors are fetched, inject the styles
-            injectWarningStyle(primaryColor, secondaryColor);
-          });
-        }
-
-        // Function to inject the styles after fetching custom colors
-        function injectWarningStyle(primaryColor, secondaryColor) {
-          const warningStyle = document.createElement("style");
-          warningStyle.id = "seizafe-style";
-          warningStyle.textContent = `
-            @keyframes fadeIn { from { opacity: 0; } to { opacity: 0.9; } }
-            @keyframes fadeOut { from { opacity: 0.9; } to { opacity: 0; } }
-        
-            .seizafe-warning {
-              font-family: 'Montserrat', sans-serif !important;
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(0deg, ${primaryColor} 33%, ${secondaryColor} 100%);
-              z-index: 9999;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              color: #ffffff;
-              text-align: center;
-              opacity: 0;
-              animation: fadeIn 0.5s forwards;
-            }
-            .seizafe-warning.fade-out { animation: fadeOut 0.5s forwards; }
-        
-            .seizafe-checkbox-container {
-              display: flex;
-              align-items: center;
-              margin-top: 15px;
-            }
-            .seizafe-checkbox {
-              margin-right: 10px;
-              transform: scale(1.2);
-            }
-            .seizafe-options-link {
-              color: #FFD700;
-              text-decoration: underline;
-              margin-top: 10px;
-              font-size: 14px;
-              cursor: pointer;
-            }
-          `;
-          document.head.appendChild(warningStyle);
-        }
-      }
-
-      // Function to create the warning overlay
-      function showWarning(video) {
-        // Ensure styles are injected
-        injectStyles();
-
-        // Check if the user has already dismissed warnings for this video
-        const videoId = video.src || window.location.href;
-        if (localStorage.getItem(`seizafe_skip_${videoId}`)) {
-          return;
-        }
-
-        // Ensure the video container exists
-        const videoContainer = video.parentElement || video;
-
-        // Create overlay div
-        let warningDiv = document.createElement("div");
-        warningDiv.classList.add("seizafe-warning");
-
-        // Add warning content
-        warningDiv.innerHTML = `
-    <img src="${chrome.runtime.getURL(
-      "assets/seizafe_eye.png"
-    )}" style="width: 100px; margin-bottom: 10px;" />
-    <h1 style="font-size: 36px; margin-bottom: 10px;">Seizure Warning!</h1>
-    <span style="font-size: 18px; max-width: 80%; line-height: 1.5;">
-      The following content may potentially trigger seizures.
-    </span>
-    
-    <div class="seizafe-checkbox-container">
-      <input type="checkbox" id="seizafe-dismiss-checkbox" class="seizafe-checkbox">
-      <label for="seizafe-dismiss-checkbox">Don't show this warning again for this video</label>
-    </div>
-
-    <span style="font-size: 14px; margin-top: 20px;">
-      Click here or hit [space] to dismiss
-    </span>
-  `;
-
-        // Ensure video container allows absolute positioning
-        const parentContainer = videoContainer.parentElement;
-        if (parentContainer) {
-          parentContainer.style.position = "relative";
-          parentContainer.insertBefore(warningDiv, parentContainer.firstChild);
-        } else {
-          document.body.appendChild(warningDiv);
-        }
-
-        // Pause video
-        video.pause();
-
-        // Function to remove warning and resume video
-        function removeWarning() {
-          // If the checkbox is checked, store preference to skip warnings for this video
-          const checkbox = document.getElementById("seizafe-dismiss-checkbox");
-          if (checkbox && checkbox.checked) {
-            localStorage.setItem(`seizafe_skip_${videoId}`, "true");
-          }
-
-          warningDiv.classList.add("fade-out");
-          setTimeout(() => warningDiv.remove(), 500); // Remove after animation
-          video.play();
-        }
-
-        // Event listeners for dismissing the warning
-        warningDiv.addEventListener("click", removeWarning);
-        document.addEventListener(
-          "keydown",
-          (event) => {
-            if (event.key === " " || event.key === "Escape") {
-              removeWarning();
-            }
-          },
-          { once: true }
-        );
-
-        // Prevent clicking the checkbox or label from dismissing the warning
-        const checkboxContainer = document.querySelector(
-          ".seizafe-checkbox-container"
-        );
-        checkboxContainer.addEventListener("click", (event) => {
-          event.stopPropagation(); // Prevents click from reaching warningDiv
-        });
-      }
-
       // Analyze video and show warning if necessary
       function analyzeVideo(video, seizureAnalysis) {
         if (seizureAnalysis.luminosity > 200) {
-          showWarning(video);
+          showWarningOverlay(video);
         }
       }
 
@@ -568,10 +418,21 @@ function drawSeizafeCanvas() {
       clearInterval(seizafeIntervalId);
     }
 
+    function clearDrawing() {
+      stopDrawing();
+      dataPoints.r = [];
+      dataPoints.g = [];
+      dataPoints.b = [];
+      dataPoints.luminosity = [];
+      startDrawing();
+    }
+
     // Check if video is playing or paused and start/stop drawing accordingly
     video.addEventListener("play", startDrawing);
     video.addEventListener("pause", stopDrawing);
     video.addEventListener("ended", stopDrawing);
+    // add listener for video scrubbing
+    video.addEventListener("seeked", clearDrawing);
 
     // Add checker for video scrubbing?
 
@@ -682,15 +543,192 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
 }
 
 // Unmount function to remove the canvas and stop the interval
-function unmountSeizafeCanvas() {
-  // alert("unmounting");
-  const seizafeDiv = document.getElementById("seizafe-debug-container");
-  if (seizafeDiv) {
-    seizafeDiv.remove(); // Remove the entire debug div
+// function unmountSeizafeCanvas() {
+//   // alert("unmounting");
+//   const seizafeDiv = document.getElementById("seizafe-debug-container");
+//   if (seizafeDiv) {
+//     seizafeDiv.remove(); // Remove the entire debug div
+//   }
+
+//   if (seizafeIntervalId) {
+//     clearInterval(seizafeIntervalId); // Clear the interval to stop drawing frames
+//     seizafeIntervalId = null; // Reset the interval ID
+//   }
+// }
+
+// Function to inject content-script styles once
+function injectStyles() {
+  if (!document.getElementById("seizafe-font")) {
+    const fontLink = document.createElement("link");
+    fontLink.id = "seizafe-font";
+    fontLink.href =
+      "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap";
+    fontLink.rel = "stylesheet";
+    document.head.appendChild(fontLink);
   }
 
-  if (seizafeIntervalId) {
-    clearInterval(seizafeIntervalId); // Clear the interval to stop drawing frames
-    seizafeIntervalId = null; // Reset the interval ID
+  // import font awesome
+  if (!document.getElementById("seizafe-fontawesome")) {
+    const fontAwesomeLink = document.createElement("link");
+    fontAwesomeLink.id = "seizafe-fontawesome";
+    fontAwesomeLink.href =
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css";
+    fontAwesomeLink.rel = "stylesheet";
+    document.head.appendChild(fontAwesomeLink);
   }
+
+  if (!document.getElementById("seizafe-style")) {
+    // Default colors
+    let primaryColor = "#6600ff";
+    let secondaryColor = "#bb00ff";
+
+    // Fetch custom warning colors from storage asynchronously
+    chrome.storage.sync.get(["customWarning"], function (result) {
+      if (result.customWarning) {
+        // Set to custom primary and secondary colors if available
+        primaryColor = result.customWarning.primaryColor;
+        secondaryColor = result.customWarning.secondaryColor;
+      }
+      // After colors are fetched, inject the styles
+      injectWarningStyle(primaryColor, secondaryColor);
+    });
+  }
+
+  // Function to inject the styles after fetching custom colors
+  function injectWarningStyle(primaryColor, secondaryColor) {
+    const warningStyle = document.createElement("style");
+    warningStyle.id = "seizafe-style";
+    warningStyle.textContent = `
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 0.9; } }
+            @keyframes fadeOut { from { opacity: 0.9; } to { opacity: 0; } }
+        
+            .seizafe-warning {
+              font-family: 'Montserrat', sans-serif !important;
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(0deg, ${primaryColor} 33%, ${secondaryColor} 100%);
+              z-index: 9999;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              color: #ffffff;
+              text-align: center;
+              opacity: 0;
+              animation: fadeIn 0.5s forwards;
+            }
+            .seizafe-warning.fade-out { animation: fadeOut 0.5s forwards; }
+        
+            .seizafe-checkbox-container {
+              display: flex;
+              align-items: center;
+              margin-top: 15px;
+            }
+            .seizafe-checkbox {
+              margin-right: 10px;
+              transform: scale(1.2);
+            }
+            .seizafe-options-link {
+              color: #FFD700;
+              text-decoration: underline;
+              margin-top: 10px;
+              font-size: 14px;
+              cursor: pointer;
+            }
+          `;
+    document.head.appendChild(warningStyle);
+  }
+}
+
+// Function to create the warning overlay
+function showWarningOverlay(video) {
+  // Ensure styles are injected
+  injectStyles();
+
+  // Check if the user has already dismissed warnings for this video
+  const videoId = video.src || window.location.href;
+  if (localStorage.getItem(`seizafe_skip_${videoId}`)) {
+    return;
+  }
+
+  // Ensure the video container exists
+  const videoContainer = video.parentElement || video;
+
+  // Delete any existing warning divs
+  const existingWarningDiv = document.querySelector(".seizafe-warning");
+  if (existingWarningDiv) {
+    existingWarningDiv.remove();
+  }
+
+  // Create overlay div
+  let warningDiv = document.createElement("div");
+  warningDiv.classList.add("seizafe-warning");
+
+  // Add warning content
+  warningDiv.innerHTML = `
+    <img src="${chrome.runtime.getURL(
+      "assets/seizafe_eye.png"
+    )}" style="width: 100px; margin-bottom: 10px;" />
+    <h1 style="font-size: 36px; margin-bottom: 10px;">Seizure Warning!</h1>
+    <span style="font-size: 18px; max-width: 80%; line-height: 1.5;">
+      The following content may potentially trigger seizures.
+    </span>
+    
+    <div class="seizafe-checkbox-container">
+      <input type="checkbox" id="seizafe-dismiss-checkbox" class="seizafe-checkbox">
+      <label for="seizafe-dismiss-checkbox">Don't warn me again for the rest of this video</label>
+    </div>
+
+    <span style="font-size: 14px; margin-top: 60px;">
+      <i class="fas fa-keyboard"></i> Click here or hit [space] to dismiss this warning
+    </span>
+  `;
+
+  // Ensure video container allows absolute positioning
+  const parentContainer = videoContainer.parentElement;
+  if (parentContainer) {
+    parentContainer.style.position = "relative";
+    parentContainer.insertBefore(warningDiv, parentContainer.firstChild);
+  } else {
+    document.body.appendChild(warningDiv);
+  }
+
+  // Pause video
+  video.pause();
+
+  // Event listeners for dismissing the warning
+  warningDiv.addEventListener("click", removeWarningOverlay);
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === " " || event.key === "Escape") {
+        removeWarningOverlay();
+      }
+    },
+    { once: true }
+  );
+
+  // Prevent clicking the checkbox or label from dismissing the warning
+  const checkboxContainer = document.querySelector(
+    ".seizafe-checkbox-container"
+  );
+  checkboxContainer.addEventListener("click", (event) => {
+    event.stopPropagation(); // Prevents click from reaching warningDiv
+  });
+}
+
+// Function to remove warning and resume video
+function removeWarningOverlay() {
+  // If the checkbox is checked, store preference to skip warnings for this video
+  const checkbox = document.getElementById("seizafe-dismiss-checkbox");
+  if (checkbox && checkbox.checked) {
+    localStorage.setItem(`seizafe_skip_${videoId}`, "true");
+  }
+
+  warningDiv.classList.add("fade-out");
+  setTimeout(() => warningDiv.remove(), 500); // Remove after animation
+  video.play();
 }

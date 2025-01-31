@@ -122,7 +122,8 @@ function toggleNowPlaying(
   if (state) {
     currentlyPlayingBanner.style.display = "block";
     nothingPlayingBanner.style.display = "none";
-    videoPlayingSite.innerHTML = currentactivesite;
+    // videoPlayingSite.innerHTML = currentactivesite;
+    videoPlayingSite.innerHTML = platformurl;
     if (channel) {
       videoPlayingChannel.innerHTML = truncate(channel, 35);
     } else {
@@ -231,7 +232,9 @@ chrome.storage.sync.get(["activesites"], function (result) {
 
 // Function to toggle the "Now Playing" display
 function updateNowPlaying(data) {
-  if (data.videoURL == null || data.currentActiveSite == null) {
+  console.log(data);
+  // if (data.videoURL == null || data.currentActiveSite == null) {
+  if (data.videoURL == null) {
     toggleNowPlaying(false, null);
   } else {
     toggleNowPlaying(

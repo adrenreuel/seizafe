@@ -18,6 +18,10 @@ let customWarning = {
 let currentActiveTabURL = null;
 let currentActiveSite = null;
 
+chrome.runtime.onStartup.addListener(() => {
+  console.log("Service worker started");
+});
+
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
   chrome.storage.sync.set({ currentsensitivity });

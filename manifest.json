@@ -4,8 +4,8 @@
     "version": "1.0",
     "manifest_version": 3,
     "background": {
-        "service_worker": "background.js"
-      },
+      "service_worker": "background.js"
+    },
     "content_scripts": [
       {
         "matches": ["https://www.youtube.com/*"],
