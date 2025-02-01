@@ -1,5 +1,6 @@
 var windowURL = window.location.toString();
 var video = null;
+var videoID = null;
 var seizafeIntervalId = null;
 
 // Defaults
@@ -9,7 +10,7 @@ const settings = {
   blueLevels: 30,
   whiteLevels: 40,
   blackLevels: 50,
-  flashFrequency: 60,
+  flashFrequency: 2,
   movingAverage: 5,
 };
 
@@ -19,21 +20,6 @@ const dataPoints = {
   g: [],
   b: [],
   luminosity: [],
-};
-
-// Initialize peak and crest values
-const peakValues = {
-  r: 0,
-  g: 0,
-  b: 0,
-  luminosity: 0,
-};
-
-const crestValues = {
-  r: 0,
-  g: 0,
-  b: 0,
-  luminosity: 0,
 };
 
 let graphOffsetX = 0; // Offset for scrolling effect
@@ -49,10 +35,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.message === "urlchanged") {
     // windowURL = request.url;
     seizafeSiteRouter();
+    // alert("urlchanged");
   }
 
   if (request.message === "tabchanged") {
     seizafeSiteRouter();
+    // alert("tabchanged");
   }
 
   if (request.message === "seizafeon") {
@@ -69,7 +57,7 @@ function seizafeSiteRouter() {
   if (windowURL.includes("youtube.com/watch")) {
     // Function to extract video details
     function extractVideoDetails() {
-      var videoID = windowURL.split("v=")[1].split("&")[0];
+      videoID = windowURL.split("v=")[1].split("&")[0];
       var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
 
       chrome.storage.local.set({ platformURL: "youtube.com" });
@@ -146,7 +134,7 @@ function seizafeSiteRouter() {
 
     function extractVideoDetails() {
       // var videoID = windowURL.split("v=")[1].split("&")[0];
-      var videoID = windowURL.split("shorts/")[1].split("&")[0];
+      videoID = windowURL.split("shorts/")[1].split("&")[0];
       var videoThumbnail = "https://img.youtube.com/vi/" + videoID + "/0.jpg";
 
       var videoTitle = document.querySelector(
@@ -398,7 +386,7 @@ function drawSeizafeCanvas() {
 
       // Analyze video and show warning if necessary
       function analyzeVideo(video, seizureAnalysis) {
-        if (seizureAnalysis.luminosity > 200) {
+        if (detectSpike()) {
           showWarningOverlay(video);
         }
       }
@@ -415,7 +403,8 @@ function drawSeizafeCanvas() {
     }
 
     function stopDrawing() {
-      clearInterval(seizafeIntervalId);
+      // clearInterval(seizafeIntervalId);
+      unmountSeizafeCanvas();
     }
 
     function clearDrawing() {
@@ -438,6 +427,44 @@ function drawSeizafeCanvas() {
 
     // Pause video if strobe detected
   }
+}
+
+// function detectSpike() {
+//   if (dataPoints.luminosity.length < settings.movingAverage) return false;
+
+//   let windowSize = settings.movingAverage;
+//   let latestIndex = dataPoints.luminosity.length - 1;
+//   let avg = 0;
+
+//   for (let i = latestIndex - windowSize; i < latestIndex; i++) {
+//     avg += Math.abs(dataPoints.luminosity[i + 1] - dataPoints.luminosity[i]);
+//   }
+//   avg /= windowSize; // Get average rate of change
+//   console.log(avg);
+
+//   return avg > settings.flashFrequency; // User-defined threshold
+// }
+
+function detectSpike() {
+  if (dataPoints.luminosity.length < settings.movingAverage) return false;
+
+  let windowSize = settings.movingAverage;
+  let totalChange = 0;
+  let latestIndex = dataPoints.luminosity.length - 1;
+
+  for (let i = latestIndex - windowSize; i < latestIndex; i++) {
+    totalChange +=
+      Math.abs(dataPoints.r[i + 1] - dataPoints.r[i]) +
+      Math.abs(dataPoints.g[i + 1] - dataPoints.g[i]) +
+      Math.abs(dataPoints.b[i + 1] - dataPoints.b[i]) +
+      Math.abs(dataPoints.luminosity[i + 1] - dataPoints.luminosity[i]);
+  }
+
+  // Normalize across all 4 channels
+  let avgChange = totalChange / (windowSize * 4);
+  console.log(avgChange);
+
+  return avgChange > settings.flashFrequency;
 }
 
 // Function to draw the graph
@@ -543,18 +570,18 @@ function updateGraph(graphCanvas, seizafeAnalysis) {
 }
 
 // Unmount function to remove the canvas and stop the interval
-// function unmountSeizafeCanvas() {
-//   // alert("unmounting");
-//   const seizafeDiv = document.getElementById("seizafe-debug-container");
-//   if (seizafeDiv) {
-//     seizafeDiv.remove(); // Remove the entire debug div
-//   }
+function unmountSeizafeCanvas() {
+  // alert("unmounting");
+  const seizafeDiv = document.getElementById("seizafe-debug-container");
+  if (seizafeDiv) {
+    seizafeDiv.remove(); // Remove the entire debug div
+  }
 
-//   if (seizafeIntervalId) {
-//     clearInterval(seizafeIntervalId); // Clear the interval to stop drawing frames
-//     seizafeIntervalId = null; // Reset the interval ID
-//   }
-// }
+  if (seizafeIntervalId) {
+    clearInterval(seizafeIntervalId); // Clear the interval to stop drawing frames
+    seizafeIntervalId = null; // Reset the interval ID
+  }
+}
 
 // Function to inject content-script styles once
 function injectStyles() {
@@ -650,6 +677,18 @@ function showWarningOverlay(video) {
 
   // Check if the user has already dismissed warnings for this video
   const videoId = video.src || window.location.href;
+  const lastDismissTime = localStorage.getItem(
+    `seizafe_lastDismiss_${videoId}`
+  );
+  const currentTime = Date.now();
+
+  // If the user dismissed the warning in the last 10 seconds, do not show it again
+  if (lastDismissTime && currentTime - lastDismissTime < 10 * 1000) {
+    console.log("Skipping warning: Dismissed within last 10 seconds.");
+    return;
+  }
+
+  // Check if the user has dismissed warnings for the rest of this video
   if (localStorage.getItem(`seizafe_skip_${videoId}`)) {
     return;
   }
@@ -701,6 +740,13 @@ function showWarningOverlay(video) {
 
   // Event listeners for dismissing the warning
   warningDiv.addEventListener("click", removeWarningOverlay);
+  // change warningDiv opacity on mouseover
+  warningDiv.addEventListener("mouseover", function () {
+    warningDiv.style.opacity = 1;
+  });
+  warningDiv.addEventListener("mouseout", function () {
+    warningDiv.style.opacity = 0.9;
+  });
   document.addEventListener(
     "keydown",
     (event) => {
@@ -722,8 +768,13 @@ function showWarningOverlay(video) {
 
 // Function to remove warning and resume video
 function removeWarningOverlay() {
-  // If the checkbox is checked, store preference to skip warnings for this video
+  const videoId = video.src || window.location.href;
+  const warningDiv = document.querySelector(".seizafe-warning");
   const checkbox = document.getElementById("seizafe-dismiss-checkbox");
+
+  // Store the timestamp when the warning is dismissed
+  localStorage.setItem(`seizafe_lastDismiss_${videoId}`, Date.now());
+
   if (checkbox && checkbox.checked) {
     localStorage.setItem(`seizafe_skip_${videoId}`, "true");
   }

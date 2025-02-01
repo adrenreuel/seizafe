@@ -74,7 +74,6 @@ const ranges = [
     prefix: "≥ ",
     suffix: "Hz",
   },
-  { id: "movingAverageRange", output: "movingAverage", suffix: "s" },
 ];
 
 // Add event listeners

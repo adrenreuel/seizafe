@@ -1,5 +1,6 @@
 let seizafestate = true;
 let currentsensitivity = 2;
+let nowplaying = null;
 let activesites = ["YouTube", "YouTube Shorts"];
 let customSensitivity = {
   redLevels: 0,
@@ -17,10 +18,6 @@ let customWarning = {
 };
 let currentActiveTabURL = null;
 let currentActiveSite = null;
-
-chrome.runtime.onStartup.addListener(() => {
-  console.log("Service worker started");
-});
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.set({ seizafestate });
@@ -67,10 +64,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
       chrome.storage.local.set({ currentActiveSite });
       chrome.storage.local.set({ currentActiveTabURL });
 
-      chrome.tabs.sendMessage(tabId, {
-        message: "tabchanged",
-        url: tabURL,
-      });
+      chrome.tabs.sendMessage(tabId, { message: "tabchanged", url: tabURL });
     }
   );
 });
