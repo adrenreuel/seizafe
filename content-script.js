@@ -747,6 +747,8 @@ function showWarningOverlay(video) {
   warningDiv.addEventListener("mouseout", function () {
     warningDiv.style.opacity = 0.9;
   });
+
+  // Dismiss warning on space or escape key press
   document.addEventListener(
     "keydown",
     (event) => {
